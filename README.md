@@ -3,7 +3,7 @@ A bot implemented using Discord4J that gets all of the users Steam games and ret
 
 Current version: Works but has issues.
 
-Commands:
+## Commands:
 
 !rgame [Custom URL/17 digit ID]
 
