@@ -3,4 +3,5 @@ A bot implemented using Discord4J that gets all of the users Steam games and ret
 
 Commands:
 !rgame [Custom URL/17 digit ID]
+
 !rgame [Custom URL/17 digit ID] [played/unplayed]
