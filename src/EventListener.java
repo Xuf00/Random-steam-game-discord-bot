@@ -30,7 +30,6 @@ public class EventListener {
     private WebDriver driver;
     private IChannel channel;
     private String profileURL;
-    static boolean pageStillLoading = false;
 
     // Executes when the bot is ready
     @EventSubscriber
@@ -66,16 +65,16 @@ public class EventListener {
                     return ;
                 }
                 
-                if (pageStillLoading) {
-                    driver = new ChromeDriver();
-                }
+                driver = new ChromeDriver();
                 profileURL = createURL(splitStr[1]);
                 
                 if (argLength == 3) {
                     if (splitStr[2].equals("played") || splitStr[2].equals("unplayed")) {
                         getAllPlayedAndUnplayedGames(splitStr[2]);
+                        driver.quit();
                         return ;
                     } else {
+                        driver.quit();
                         commandList();
                         return ;
                     }
@@ -84,6 +83,7 @@ public class EventListener {
                 getAllUsersGames();
                 
             }
+            driver.quit();
         }
     }
  
@@ -101,9 +101,7 @@ public class EventListener {
     
     // Navigate to the users games page and retrieve all of their games, return a random one
     private void getAllUsersGames() {
-        pageStillLoading = true;
         driver.get(profileURL);
-        pageStillLoading = false;
                 
         Elements games = selectElement(driver, "div#mainContents "
                 + "div.gameListRowItem "
@@ -125,9 +123,9 @@ public class EventListener {
     
     // Retrieve all games and seperate them by whether they've been played or not
     private void getAllPlayedAndUnplayedGames(String playedStatus) {
-        Elements games = selectElement(driver, "div#mainContents div.gameListRowItem");
+        driver.get(profileURL);
         
-        if (checkIfNoGames(games)) { return ; }
+        Elements games = selectElement(driver, "div#mainContents div.gameListRowItem");
         
         ArrayList<String> playedGames = new ArrayList<>();
         ArrayList<String> unplayedGames = new ArrayList<>();
@@ -141,6 +139,8 @@ public class EventListener {
                 hoursPlayed.add(game.select("h5").text());
             }
         });
+        
+        //if (playedGames.isEmpty() || unplayedGames.isEmpty()) { return ; }
         
         playedStatus(playedStatus, playedGames, unplayedGames, hoursPlayed);
     }
@@ -197,6 +197,7 @@ public class EventListener {
             temp = "https://steamcommunity.com/id/" 
                     + s + "/games/?tab=all";
         }
+        System.out.println(temp);
         return temp;
     }
     
