@@ -138,12 +138,15 @@ public class EventListener {
     private void getAllPlayedAndUnplayedGames(String playedStatus) {
         driver.get(profileURL);
         
+        // Grabs all games that the user owns
         Elements games = selectElement(driver, "div#mainContents div.gameListRowItem");
         
-        //Game[] allGames = new Game[games.size()];
+        if (checkIfNoGames(games)) { return ; }
+        
         ArrayList<Game> allGames = new ArrayList<>();
         int i = 0;
         for (Element game : games) {
+            // Check if the game has play time, if not it hasn't been played yet
             if (game.select("h5").text().length() == 0) {
                 String getUnplayedGame = game.select(".gameListRowItemName.ellipsis").text();
                 allGames.add(new Game(getUnplayedGame));
@@ -248,8 +251,9 @@ public class EventListener {
     
     private boolean checkIfNoGames(Elements games) {
         if (games.isEmpty()) {
-            channel.sendMessage("Your profile is either private or "
-                    + "you have provided an incorrect profile name. Try again.");
+            channel.sendMessage("Either your profile is either private, "
+                    + "you have provided an incorrect profile name or you own 0 games. "
+                    + "Try again.");
             return true;
         }
         return false;
