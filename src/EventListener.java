@@ -120,12 +120,10 @@ public class EventListener {
         if (checkIfNoGames(games)) { return ; }
         
         ArrayList<Game> allGames = new ArrayList<>();
-        int i = 0;
         for (Element game : games) {
             if (!DLCList.contains(game.text())) {
                 allGames.add(new Game(game.text()));
             }
-            i++;
         }
         Random r = new Random();
         int rand = r.nextInt(allGames.size());
@@ -144,18 +142,18 @@ public class EventListener {
         if (checkIfNoGames(games)) { return ; }
         
         ArrayList<Game> allGames = new ArrayList<>();
-        int i = 0;
         for (Element game : games) {
-            // Check if the game has play time, if not it hasn't been played yet
-            if (game.select("h5").text().length() == 0) {
-                String getUnplayedGame = game.select(".gameListRowItemName.ellipsis").text();
-                allGames.add(new Game(getUnplayedGame));
-            } else {
-                String getPlayedGame = game.select(".gameListRowItemName.ellipsis").text();
-                String getHoursPlayed = game.select("h5").text();
-                allGames.add(new Game(getPlayedGame, getHoursPlayed));
+            String nextGame = game.select(".gameListRowItemName.ellipsis").text();
+            if (!DLCList.contains(nextGame)) {
+                // Check if the game has play time, if not it hasn't been played yet
+                if (game.select("h5").text().length() == 0) {
+                    allGames.add(new Game(nextGame));
+                } 
+                else {
+                    String getHoursPlayed = game.select("h5").text();
+                    allGames.add(new Game(nextGame, getHoursPlayed));
+                }
             }
-            i++;
         }
         
         if (playedStatus.equals("played")) {
@@ -177,7 +175,7 @@ public class EventListener {
             Game randPlayedGame = randPlayedOrUnplayedGame(allGames, true);
             
             gamePlayedOrNot = name.text() + " has played " + noOfPlayedOrUnplayedGames(allGames, true) + " of their games out of "
-                    + totalGames + " (" + gamePlayedPercent + "%)" + ". (Includes DLC)\n"
+                    + totalGames + " (" + gamePlayedPercent + "%)" + ".\n"
                     + "I recommend that " + name.text() + " plays **" + randPlayedGame.getGameName()
                     + "**.\nThere is currently " + randPlayedGame.getHoursPlayed() + " on this game.";
         } 
@@ -186,7 +184,7 @@ public class EventListener {
             Game randUnplayedGame = randPlayedOrUnplayedGame(allGames, false);
         
             gamePlayedOrNot = name.text() + " hasn't played " + noOfPlayedOrUnplayedGames(allGames, false) + " of their games out of "
-                    + totalGames + " (" + gamePlayedPercent + "%)" + ". (Includes DLC)\n"
+                    + totalGames + " (" + gamePlayedPercent + "%)" + ".\n"
                     + "I recommend that " + name.text() + " plays **" + randUnplayedGame.getGameName() + "**.";
         }
         
