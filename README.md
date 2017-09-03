@@ -4,7 +4,6 @@ A bot implemented using Discord4J to communicate with Discord, Selenium for web 
 Current version: Works but has issues. Issues mostly noticed with huge Steam libraries (5000+ games), this is due to the Steam page being unresponsive with so many games to load.
 
 Looking to add:
-- Filtering out DLC (Awkward as a users Steam game page doesn't differ between a game or DLC)
 - More efficient use of the WebDriver's used for web crawling (Potential multi-threading)
 - Speeding up the bots responses
 - Preventing the spam of commands
