@@ -5,6 +5,7 @@ Current version: Works but has issues. Issues mostly noticed with huge Steam lib
 
 Looking to add:
 - More efficient use of the WebDriver's used for web crawling (Potential multi-threading)
+- General refactoring of code
 - Speeding up the bots responses
 - Preventing the spam of commands
 
