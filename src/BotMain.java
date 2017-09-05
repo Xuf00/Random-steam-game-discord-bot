@@ -11,7 +11,7 @@ import sx.blah.discord.util.DiscordException;
  */
 public class BotMain {
     
-    public static final IDiscordClient discordBot = createClient("MzQ4MTA5NDUyMDQzNDg1MTg1.DHiJ-Q.ZE9v5h2qa1bmodjYETUik_Bdg24", true);
+    public static final IDiscordClient discordBot = createClient("Bot Key here", true);
     
     public static void main(String[] args) {
         System.setProperty("webdriver.chrome.driver", "D:\\Jack\\Documents"
