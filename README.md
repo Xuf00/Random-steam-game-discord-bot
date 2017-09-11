@@ -9,6 +9,13 @@ Looking to add:
 - Speeding up the bots responses
 - Preventing the spam of commands
 
+To host the bot yourself:
+- Create your bot https://discordapp.com/developers/applications/me/
+- Use your client ID for your bot in BotMain
+- Download the ChromeDriver https://sites.google.com/a/chromium.org/chromedriver/downloads
+- Add the path to the ChromeDriver in BotMain's main method
+- The latest list of DLC for filtering can be found here https://github.com/JackJohnsonsProjects/Steam-game-dlc-crawler/tree/master/src/output
+
 ## Commands:
 
 !rgame [Custom URL/17 digit ID]
