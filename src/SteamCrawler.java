@@ -35,7 +35,7 @@ public class SteamCrawler {
     
     public SteamCrawler(IChannel channel, String profileURL) {
         try {
-            Scanner s = new Scanner(new File("D:\\Jack\\Documents\\NetBeansProjects\\SeleniumandJSoup\\ListOfDLC.txt"));
+            Scanner s = new Scanner(new File("Path to the list of DLC text file here"));
             while (s.hasNextLine()){
                 DLCList.add(s.nextLine());
             }
