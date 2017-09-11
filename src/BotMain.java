@@ -14,8 +14,7 @@ public class BotMain {
     public static final IDiscordClient discordBot = createClient("Bot Key here", true);
     
     public static void main(String[] args) {
-        System.setProperty("webdriver.chrome.driver", "D:\\Jack\\Documents"
-                + "\\Programming\\Java\\ChromeDriver\\chromedriver.exe");
+        System.setProperty("webdriver.chrome.driver", "Path to ChromeDriver here");
         EventDispatcher dispatcher = discordBot.getDispatcher();
         dispatcher.registerListener(new EventListener());
     }
