@@ -14,6 +14,7 @@ Looking to add:
 I am not hosting the bot publically at this point in time but may decide to in the future. The type of bot it is makes it better to host for just a few friends whenever we're on Discord. So with that said...
 
 ### To host the bot yourself
+- Add Discordd4J, Selenium and JSoup as maven dependencies or any other way you want
 - Create your bot https://discordapp.com/developers/applications/me/
 - Use your client ID for your bot in BotMain
 - Download the ChromeDriver https://sites.google.com/a/chromium.org/chromedriver/downloads
