@@ -19,7 +19,7 @@ I am not hosting the bot publically at this point in time but may decide to in t
 - Use your client ID for your bot in BotMain
 - Download the ChromeDriver https://sites.google.com/a/chromium.org/chromedriver/downloads
 - Add the path to the ChromeDriver in BotMain's main method
-- The latest list of DLC for filtering can be found here https://github.com/JackJohnsonsProjects/Steam-game-dlc-crawler/tree/master/src/output
+- The latest list of DLC for filtering can be found here, right-click and save-as https://raw.githubusercontent.com/JackJohnsonsProjects/Steam-game-dlc-crawler/master/src/output/ListOfDLC.txt
 
 ## Commands:
 
