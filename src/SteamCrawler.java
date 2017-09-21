@@ -4,8 +4,6 @@
     methods to return a random game
 */
 
-package com.mycompany.firstdiscordbot;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -26,26 +24,15 @@ import sx.blah.discord.util.RequestBuffer;
  */
 public class SteamCrawler {
     
-    private WebDriver driver;
+    private WebDriver driver = new ChromeDriver();
     private IChannel channel;
     private String profileURL;
     private Elements games;
     private Elements steamName;
-    private ArrayList<String> DLCList = new ArrayList<>();
     
     public SteamCrawler(IChannel channel, String profileURL) {
-        try {
-            Scanner s = new Scanner(new File("Path to the list of DLC text file here"));
-            while (s.hasNextLine()){
-                DLCList.add(s.nextLine());
-            }
-            s.close();
-        } catch (FileNotFoundException f) {
-            System.out.println("File could not be found.");
-        }
         this.channel = channel;
         createURL(profileURL);
-        driver = new ChromeDriver();
         selectPageElements();
     }
     
@@ -63,7 +50,7 @@ public class SteamCrawler {
     
     // Choose a random game for the user to play
     public void randGame() {
-        if (checkIfNoGames()) { driver.quit(); return ; }
+        if (noGamesOwned()) { return ; }
         
         ArrayList<Game> allGames = getAllGames();
         
@@ -76,14 +63,14 @@ public class SteamCrawler {
     
     // Choose a random game that the user has already played before
     public void randPlayedGame() {
-        if (checkIfNoGames()) { driver.quit(); return ; }
+        if (noGamesOwned()) { return ; }
         
         ArrayList<Game> allGames = getAllGames();
-        ArrayList<Game> playedGames = filterByPlayed(allGames);
+        ArrayList<Game> playedGames = filterGames(allGames, true);
         
         int totalGamesVal = allGames.size();
         int playedGameVal = playedGames.size();
-        int gamePlayedPercent = (int) (playedGameVal * 100 / totalGamesVal);
+        int gamePlayedPercent = (playedGameVal * 100 / totalGamesVal);
         
         Game randPlayedGame = chooseRandGame(playedGames);
         
@@ -97,14 +84,14 @@ public class SteamCrawler {
     
     // Choose a random game that the user has never played
     public void randUnplayedGame() {
-        if (checkIfNoGames()) { return ; }
+        if (noGamesOwned()) { return ; }
         
         ArrayList<Game> allGames = getAllGames();
-        ArrayList<Game> unplayedGames = filterByUnplayed(allGames);
+        ArrayList<Game> unplayedGames = filterGames(allGames, false);
         
         int totalGamesVal = allGames.size();
         int unplayedGameVal = unplayedGames.size();
-        int gamePlayedPercent = (int) (unplayedGameVal * 100 / totalGamesVal);
+        int gamePlayedPercent = (unplayedGameVal * 100 / totalGamesVal);
         
         Game randUnplayedGame = chooseRandGame(unplayedGames);
         
@@ -126,7 +113,7 @@ public class SteamCrawler {
         ArrayList<Game> allGames = new ArrayList<>();
         for (Element game : games) {
             String nextGame = game.select(".gameListRowItemName.ellipsis").text();
-            if (!DLCList.contains(nextGame)) {
+            if (!BotMain.dlcList.contains(nextGame)) {
                 // Check if the game has play time, if not it hasn't been played yet
                 if (game.select("h5").text().length() == 0) {
                     allGames.add(new Game(nextGame));
@@ -139,43 +126,36 @@ public class SteamCrawler {
         }
         return allGames;
     }
-    
-    private ArrayList<Game> filterByPlayed(ArrayList<Game> games) {
+
+    // Filter games by whether or not they have been played
+    private ArrayList<Game> filterGames(ArrayList<Game> games, boolean played) {
         ArrayList<Game> temp = new ArrayList<>();
-        for (int i = 0; i < games.size(); i++) {
-            if (games.get(i).getPlayStatus()) {
-                temp.add(games.get(i));
-            }
-        }
-        return temp;
-    }
-    
-    private ArrayList<Game> filterByUnplayed(ArrayList<Game> games) {
-        ArrayList<Game> temp = new ArrayList<>();
-        for (int i = 0; i < games.size(); i++) {
-            if (!games.get(i).getPlayStatus()) {
-                temp.add(games.get(i));
+        for (Game game : games) {
+            if (game.getPlayStatus() == played) {
+                temp.add(game);
             }
         }
         return temp;
     }
     
     // Check if the user has a custom URL or Steam 64 URL and return their profile URL
-    private void createURL(String s) {
-        if (s.matches("\\d+")) {
-            profileURL = "https://steamcommunity.com/profiles/" 
-                    + s + "/games/?tab=all";
+    private void createURL(String profileID) {
+        if (profileID.matches("\\d+")) {
+            profileURL = "https://steamcommunity.com/profiles/"
+                    + profileID + "/games/?tab=all";
         } else {
             profileURL = "https://steamcommunity.com/id/" 
-                    + s + "/games/?tab=all";
+                    + profileID + "/games/?tab=all";
         }
     }
-    
-    private boolean checkIfNoGames() {
+
+    // Check to see if the user doesn't own any games
+    private boolean noGamesOwned() {
         if (games.isEmpty()) {
-            channel.sendMessage("Either your profile is either private, "
+            channel.sendMessage("Either your profile is private, "
                     + "you have provided an incorrect profile name or you own 0 games. "
                     + "Try again.");
+            driver.quit();
             return true;
         }
         return false;

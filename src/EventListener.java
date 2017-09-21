@@ -3,11 +3,8 @@
     of the message.
 */
 
-package com.mycompany.firstdiscordbot;
-
 import sx.blah.discord.api.events.EventSubscriber;
-import sx.blah.discord.handle.impl.events.MessageReceivedEvent;
-import sx.blah.discord.handle.impl.events.ReadyEvent;
+import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
@@ -26,8 +23,6 @@ public class EventListener {
         IChannel channel = event.getChannel();
         IUser user = event.getAuthor();
         IMessage message = event.getMessage();
-        
-        String messageUser = user.getName();
         
         // Split the users message up based on whitespace
         String[] splitStr = message.getContent().substring(1).split(" ");
@@ -48,17 +43,15 @@ public class EventListener {
                 }
                 
                 String steamName = splitStr[1];
-                SteamCrawler crawler;
+                SteamCrawler crawler = new SteamCrawler(channel, steamName);
                 
                 if (argLength == 3) {
                     String playedOrNot = splitStr[2];
                     switch (playedOrNot) {
                         case "played":
-                            crawler = new SteamCrawler(channel, steamName);
                             crawler.randPlayedGame();
                             return ;
                         case "unplayed":
-                            crawler = new SteamCrawler(channel, steamName);
                             crawler.randUnplayedGame();
                             return ;
                         default:
@@ -66,7 +59,7 @@ public class EventListener {
                             return ;
                     }
                 }
-                crawler = new SteamCrawler(channel, steamName);
+                //crawler = new SteamCrawler(channel, steamName);
                 crawler.randGame();
             }
         }
@@ -78,7 +71,7 @@ public class EventListener {
         builder.withColor(41, 128, 185);
         builder.appendDescription("Grabs all of a users games on Steam and selects a random game. "
                 + "User can filter whether or not they want a random game they haven't played before.");
-        builder.appendField("Commands   ", "!rgame [name/17 digit ID]" 
+        builder.appendField("Commands   ", "!rgame [name/17 digit ID]"
                 + "           " + "\n!rgame [name/17 digit ID] [played/unplayed]", true);
         builder.appendField("Example", "!rgame Xufoo\n!rgame 76561198054740594 played", true);
         RequestBuffer.request(() -> channel.sendMessage(builder.build()));
