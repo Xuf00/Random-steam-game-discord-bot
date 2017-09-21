@@ -2,8 +2,6 @@
     This class represents a Steam game from the users library.
 */
 
-package com.mycompany.firstdiscordbot;
-
 /**
  *
  * @author Jack
