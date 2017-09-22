@@ -19,7 +19,7 @@ public class EventListener {
     
     // Executes when a message is received.
     @EventSubscriber
-    public void onMessageReceivedEvent(MessageReceivedEvent event) {
+    public void onMessageEvent(MessageReceivedEvent event) {
         IChannel channel = event.getChannel();
         IUser user = event.getAuthor();
         IMessage message = event.getMessage();
@@ -33,6 +33,8 @@ public class EventListener {
         }
         
         if (message.getContent().charAt(0) == '!') {
+            String steamName;
+
             if (splitStr[0].equals("commands")) {
                 commandList(channel);
             }
@@ -41,8 +43,8 @@ public class EventListener {
                     commandList(channel);
                     return ;
                 }
-                
-                String steamName = splitStr[1];
+
+                steamName = splitStr[1];
                 SteamCrawler crawler = new SteamCrawler(channel, steamName);
                 
                 if (argLength == 3) {
@@ -59,8 +61,18 @@ public class EventListener {
                             return ;
                     }
                 }
-                //crawler = new SteamCrawler(channel, steamName);
                 crawler.randGame();
+            }
+            else if (splitStr[0].equals("mostplayed")) {
+                if (argLength < 2 || argLength > 2) {
+                    commandList(channel);
+                    return ;
+                }
+
+                steamName = splitStr[1];
+                SteamCrawler crawler = new SteamCrawler(channel, steamName);
+                crawler.mostPlayedGames();
+
             }
         }
     }
@@ -72,8 +84,9 @@ public class EventListener {
         builder.appendDescription("Grabs all of a users games on Steam and selects a random game. "
                 + "User can filter whether or not they want a random game they haven't played before.");
         builder.appendField("Commands   ", "!rgame [name/17 digit ID]"
-                + "           " + "\n!rgame [name/17 digit ID] [played/unplayed]", true);
-        builder.appendField("Example", "!rgame Xufoo\n!rgame 76561198054740594 played", true);
+                + "           " + "\n!rgame [name/17 digit ID] [played/unplayed]"
+                + "           " + "\n!mostplayed [name/17 digit ID]", true);
+        builder.appendField("Example", "!rgame Xufoo\n!rgame 76561198054740594 played\n!mostplayed Xufoo", true);
         RequestBuffer.request(() -> channel.sendMessage(builder.build()));
     }
 }
