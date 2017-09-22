@@ -16,6 +16,7 @@ import org.jsoup.select.Elements;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import sx.blah.discord.handle.obj.IChannel;
+import sx.blah.discord.util.EmbedBuilder;
 import sx.blah.discord.util.RequestBuffer;
 
 /**
@@ -28,7 +29,7 @@ public class SteamCrawler {
     private IChannel channel;
     private String profileURL;
     private Elements games;
-    private Elements steamName;
+    private String steamName;
     
     public SteamCrawler(IChannel channel, String profileURL) {
         this.channel = channel;
@@ -43,9 +44,8 @@ public class SteamCrawler {
     private void selectPageElements() {
         driver.get(profileURL);
         Document doc = Jsoup.parse(driver.getPageSource());
-        games = doc.select("div#mainContents "
-                + "div.gameListRowItem");
-        steamName = doc.select("span.profile_small_header_name a");
+        games = doc.select(".gameListRow");
+        steamName = doc.select("span.profile_small_header_name a").text();
     }
     
     // Choose a random game for the user to play
@@ -55,9 +55,12 @@ public class SteamCrawler {
         ArrayList<Game> allGames = getAllGames();
         
         Game randGame = chooseRandGame(allGames);
+        String installGame = "steam://run/" + randGame.getGameID();
+
         RequestBuffer.request(() -> 
-                channel.sendMessage(steamName.text() + " owns " + allGames.size() + " games.\n"
-                + "I'd recommend " + steamName.text() + " plays **" + randGame.getGameName() + "**."));
+                channel.sendMessage(steamName + " owns " + allGames.size() + " games.\n"
+                + "I'd recommend " + steamName + " plays **" + randGame.getGameName() + "**.\n" +
+                        "Install or play the game: " + installGame));
         driver.quit();
     }
     
@@ -73,12 +76,14 @@ public class SteamCrawler {
         int gamePlayedPercent = (playedGameVal * 100 / totalGamesVal);
         
         Game randPlayedGame = chooseRandGame(playedGames);
+        String installGame = "steam://run/" + randPlayedGame.getGameID();
         
         RequestBuffer.request(() ->
-                channel.sendMessage(steamName.text() + " has played " + playedGameVal + " of their games out of "
+                channel.sendMessage(steamName + " has played " + playedGameVal + " of their games out of "
                     + totalGamesVal + " (" + gamePlayedPercent + "%)" + ".\n"
-                    + "I recommend that " + steamName.text() + " plays **" + randPlayedGame.getGameName()
-                    + "**.\nThere is currently " + randPlayedGame.getHoursPlayed() + " on this game."));
+                    + "I recommend that " + steamName + " plays **" + randPlayedGame.getGameName()
+                    + "**.\nThere is currently " + randPlayedGame.getHoursPlayed() + " on this game.\n"
+                    + "Install or play the game: " + installGame));
         driver.quit();
     }
     
@@ -94,11 +99,48 @@ public class SteamCrawler {
         int gamePlayedPercent = (unplayedGameVal * 100 / totalGamesVal);
         
         Game randUnplayedGame = chooseRandGame(unplayedGames);
+        String installGame = "steam://run/" + randUnplayedGame.getGameID();
         
         RequestBuffer.request(() ->
-                channel.sendMessage(steamName.text() + " hasn't played " + unplayedGameVal + " of their games out of "
+                channel.sendMessage(steamName + " hasn't played " + unplayedGameVal + " of their games out of "
                     + totalGamesVal + " (" + gamePlayedPercent + "%)" + ".\n"
-                    + "I recommend that " + steamName.text() + " plays **" + randUnplayedGame.getGameName() + "**."));
+                    + "I recommend that " + steamName + " plays **" + randUnplayedGame.getGameName() + "**.\n"
+                    + "Install or play the game: " + installGame));
+        driver.quit();
+    }
+
+    public void mostPlayedGames() {
+        if (noGamesOwned()) { return ; }
+
+        ArrayList<Game> allGames = getAllGames();
+        ArrayList<Game> playedGames = filterGames(allGames, true);
+
+        if (playedGames.size() < 5) {
+            channel.sendMessage("You need to have played five games.");
+            return;
+        }
+
+        EmbedBuilder builder = new EmbedBuilder();
+        builder.withColor(41, 128, 185);
+        builder.withDesc("The top five most played games on Steam for this user.");
+        builder.withTitle(steamName + " most played games\n");
+
+        builder.appendField("Game Name",
+                playedGames.get(0).getGameName() + "\n" +
+                playedGames.get(1).getGameName() + "\n" +
+                playedGames.get(2).getGameName() + "\n" +
+                playedGames.get(3).getGameName() + "\n" +
+                playedGames.get(4).getGameName(), true);
+
+        builder.appendField( "\t\t\t Hours Played",
+                playedGames.get(0).getHoursPlayed() + "\n" +
+                        playedGames.get(1).getHoursPlayed() + "\n" +
+                        playedGames.get(2).getHoursPlayed() + "\n" +
+                        playedGames.get(3).getHoursPlayed() + "\n" +
+                        playedGames.get(4).getHoursPlayed(), true);
+
+        RequestBuffer.request(() ->
+                channel.sendMessage(builder.build()));
         driver.quit();
     }
     
@@ -112,15 +154,16 @@ public class SteamCrawler {
     private ArrayList<Game> getAllGames() {
         ArrayList<Game> allGames = new ArrayList<>();
         for (Element game : games) {
-            String nextGame = game.select(".gameListRowItemName.ellipsis").text();
+            String nextGame = game.select(".gameListRowItem .gameListRowItemName.ellipsis").text();
+            String gameID = game.id().substring(5);
             if (!BotMain.dlcList.contains(nextGame)) {
                 // Check if the game has play time, if not it hasn't been played yet
-                if (game.select("h5").text().length() == 0) {
-                    allGames.add(new Game(nextGame));
+                if (game.select(".gameListRowItem h5").text().length() == 0) {
+                    allGames.add(new Game(gameID, nextGame));
                 }
                 else {
-                    String getHoursPlayed = game.select("h5").text();
-                    allGames.add(new Game(nextGame, getHoursPlayed));
+                    String getHoursPlayed = game.select(".gameListRowItem h5").text();
+                    allGames.add(new Game(gameID, nextGame, getHoursPlayed));
                 }
             }
         }

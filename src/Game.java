@@ -11,14 +11,17 @@ public class Game {
     private String gameName;
     private boolean playedOrNot;
     private String hoursPlayed;
+    private String gameID;
     
-    public Game(String playedGame, String hoursPlayed) {
+    public Game(String gameID, String playedGame, String hoursPlayed) {
+        this.gameID = gameID;
         this.gameName = playedGame;
         this.hoursPlayed = hoursPlayed;
         this.playedOrNot = true;
     }
     
-    public Game(String game) {
+    public Game(String gameID, String game) {
+        this.gameID = gameID;
         this.gameName = game;
         this.playedOrNot = false;
     }
@@ -34,4 +37,6 @@ public class Game {
     public String getHoursPlayed() {
         return hoursPlayed;
     }
+
+    public String getGameID() { return gameID; }
 }
