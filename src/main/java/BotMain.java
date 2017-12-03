@@ -10,13 +10,16 @@ import java.util.ArrayList;
  * @author Jack
  */
 public class BotMain {
-    
-    public static final IDiscordClient discordBot = createClient(BotUtils.loadBotToken("config/botconfig.txt"), true);
 
     // Store DLC list early on to speed bot up slightly
     public static final ArrayList<String> dlcList = BotUtils.loadAllDlc("src/main/java/ListOfDLC.txt");
     
     public static void main(String[] args) {
+        String test = args[0];
+        if (args.length < 0 && args.length > 1) {
+            throw new IllegalStateException("Need to pass in the bot token as an argument.");
+        }
+        IDiscordClient discordBot = BotUtils.createClient(args[0], true);
         System.setProperty("webdriver.chrome.driver", "chromedriver/chromedriver.exe");
         try {
             EventDispatcher dispatcher = discordBot.getDispatcher();
@@ -26,19 +29,4 @@ public class BotMain {
             System.out.println("Go to https://discordapp.com/developers/applications/me to create a bot and get a token.");
         }
     }
-    
-    private static IDiscordClient createClient(String token, boolean login) {
-        ClientBuilder clientBuilder = new ClientBuilder();
-        clientBuilder.withToken(token);
-        try {
-            if (login) {
-                return clientBuilder.login();
-            } else {
-                return clientBuilder.build();
-            }
-        } catch (DiscordException e) {
-            return null;
-        }
-    }
-
 }
