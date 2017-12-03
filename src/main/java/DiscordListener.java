@@ -39,10 +39,10 @@ public class DiscordListener {
                 commandList(channel);
             }
             else if (splitStr[0].equals("rgame")) {
-                /*if (argLength < 2) {
+                if (argLength < 2) {
                     commandList(channel);
                     return ;
-                }*/
+                }
 
                 steamName = splitStr[1];
                 SteamCrawler crawler = new SteamCrawler(channel, steamName);
