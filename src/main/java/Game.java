@@ -9,7 +9,7 @@
 public class Game {
  
     private String gameName;
-    private boolean playedOrNot;
+    private boolean played;
     private String hoursPlayed;
     private String gameID;
     
@@ -17,13 +17,13 @@ public class Game {
         this.gameID = gameID;
         this.gameName = playedGame;
         this.hoursPlayed = hoursPlayed;
-        this.playedOrNot = true;
+        this.played = true;
     }
     
     public Game(String gameID, String game) {
         this.gameID = gameID;
         this.gameName = game;
-        this.playedOrNot = false;
+        this.played = false;
     }
     
     public String getGameName() {
@@ -31,7 +31,7 @@ public class Game {
     }
     
     public boolean getPlayStatus() {
-        return playedOrNot;
+        return played;
     }
     
     public String getHoursPlayed() {
