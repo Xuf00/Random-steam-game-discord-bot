@@ -71,6 +71,7 @@ public class SteamCrawler {
     public void randPlayedGame() {
 
         ArrayList<Game> allGames = getAllGames(steam64Id);
+        if (noGamesOwned(allGames)) { return ; }
         ArrayList<Game> playedGames = filterGames(allGames, true);
 
         if (noGamesOwned(playedGames)) {
@@ -98,6 +99,7 @@ public class SteamCrawler {
     public void randUnplayedGame() {
 
         ArrayList<Game> allGames = getAllGames(steam64Id);
+        if (noGamesOwned(allGames)) { return ; }
         ArrayList<Game> unplayedGames = filterGames(allGames, false);
 
         if (noGamesOwned(unplayedGames)) {
@@ -124,6 +126,7 @@ public class SteamCrawler {
     public void mostPlayedGames() {
 
         ArrayList<Game> allGames = getAllGames(steam64Id);
+        if (noGamesOwned(allGames)) { return ; }
         ArrayList<Game> playedGames = filterGames(allGames, true);
 
         if(noGamesOwned(playedGames)) {
@@ -202,6 +205,7 @@ public class SteamCrawler {
             }
         });
 
+        totalGamesVal = allGames.size();
         return allGames;
     }
 
@@ -271,6 +275,7 @@ public class SteamCrawler {
      */
     private boolean noGamesOwned(ArrayList<Game> games) {
         if (games.isEmpty()) {
+            sendMessage("No games owned or private profile.");
             return true;
         }
         return false;
