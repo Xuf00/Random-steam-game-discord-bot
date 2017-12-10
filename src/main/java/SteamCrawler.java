@@ -4,12 +4,16 @@
     methods to return a random game
 */
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
+
+import jdk.nashorn.internal.parser.JSONParser;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.parser.Parser;
 import org.jsoup.select.Elements;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -22,36 +26,33 @@ import sx.blah.discord.util.RequestBuffer;
  * @author Jack
  */
 public class SteamCrawler {
-    
-    private WebDriver driver = new ChromeDriver();
+
     private IChannel channel;
-    private String profileURL;
     private ArrayList<Game> allGames = new ArrayList<>();
     private int totalGamesVal;
     private String steamName;
+    private static final String steamApiToken = "";
     
     public SteamCrawler(IChannel channel, String profileID) {
         this.channel = channel;
-        createURL(profileID);
-        selectPageElements();
+        selectPageElements(profileID);
     }
 
     /**
      * Select the game items from the users steam page and store them
      */
-    private void selectPageElements() {
-        driver.get(profileURL);
-        Document doc = Jsoup.parse(driver.getPageSource());
+    private void selectPageElements(String profileID) {
+        String steam64Id = createSteam64Id(profileID);
 
-        Elements games = doc.select(".gameListRow");
-        allGames = getAllGames(games);
+        allGames = getAllGames(steam64Id);
+
         if (noGamesOwned(allGames)) {
             sendMessage("Profile is either private, you own 0 games " +
                     "or you have provided an incorrect Steam name. Try again.");
             return ;
         }
-        totalGamesVal = allGames.size();
-        steamName = doc.select("span.profile_small_header_name a").text();
+        //totalGamesVal = allGames.size();
+        //steamName = doc.select("span.profile_small_header_name a").text();
     }
     
     // Choose a random game for the user to play
@@ -62,7 +63,6 @@ public class SteamCrawler {
         sendMessage(steamName + " owns " + allGames.size() + " games.\n"
                     + "I'd recommend " + steamName + " plays **" + randGame.getGameName() + "**.\n" +
                     "Install or play the game: " + installLink);
-        driver.quit();
     }
 
     /**
@@ -89,7 +89,6 @@ public class SteamCrawler {
                     + "I recommend that " + steamName + " plays **" + randPlayedGame.getGameName()
                     + "**.\nThere is currently " + randPlayedGame.getHoursPlayed() + " on this game.\n"
                     + "Install or play the game: " + installLink);
-        driver.quit();
     }
 
     /**
@@ -116,7 +115,6 @@ public class SteamCrawler {
                 + totalGamesVal + " (" + gamePlayedPercent + "%)" + ".\n"
                 + "I recommend that " + steamName + " plays **" + randUnplayedGame.getGameName() + "**.\n"
                 + "Install or play the game: " + installLink);
-        driver.quit();
     }
 
     /**
@@ -157,7 +155,6 @@ public class SteamCrawler {
 
         RequestBuffer.request(() ->
                 channel.sendMessage(builder.build()));
-        driver.quit();
     }
 
     /**
@@ -173,23 +170,34 @@ public class SteamCrawler {
 
     /**
      * Retrieve all of the users games
-     * @param games The HTML elements from Steam which contain the games information
+     * @param steam64Id The Steam 64 bit ID of the user
      * @return All of the users Steam games
      */
-    private ArrayList<Game> getAllGames(Elements games) {
+    private ArrayList<Game> getAllGames(String steam64Id) {
         ArrayList<Game> allGames = new ArrayList<>();
+        Document doc = null;
+        try {
+            doc = Jsoup.connect("http://api.steampowered.com/IPlayerService/GetOwnedGames/v1/" +
+                    "?key=" + steamApiToken +
+                    "&include_appinfo=1" +
+                    "&include_played_free_games=" +
+                    "&steamid=" + steam64Id +
+                    "&format=xml").get();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        Elements games = doc.getElementsByTag("message");
+
         for (Element game : games) {
-            String currentGame = game.select(".gameListRowItem .gameListRowItemName.ellipsis").text();
-            String gameID = game.id().substring(5);
-            if (!BotMain.dlcList.contains(currentGame)) {
-                // Check if the game has play time, if not it hasn't been played yet
-                if (game.select(".gameListRowItem h5").text().length() == 0) {
-                    allGames.add(new Game(gameID, currentGame));
-                }
-                else {
-                    String getHoursPlayed = game.select(".gameListRowItem h5").text();
-                    allGames.add(new Game(gameID, currentGame, getHoursPlayed));
-                }
+            String currentGame = game.select("name").text();
+            String gameId = game.select("appid").text();
+            String minutesPlayed = game.select("playtime_forever").text();
+            if (minutesPlayed.contentEquals("0")) {
+                allGames.add(new Game(gameId, currentGame));
+            }
+            else {
+                String timePlayed = convertToHoursAndMinutes(minutesPlayed);
+                allGames.add(new Game(gameId, currentGame, timePlayed));
             }
         }
         return allGames;
@@ -224,14 +232,29 @@ public class SteamCrawler {
      * Create the URL required based on the users ID
      * @param profileID The users steam profile ID/name
      */
-    private void createURL(String profileID) {
+    private String createSteam64Id(String profileID) {
+        String profileURL;
         if (profileID.matches("\\d+")) {
-            profileURL = "https://steamcommunity.com/profiles/"
-                    + profileID + "/games/?tab=all";
-        } else {
-            profileURL = "https://steamcommunity.com/id/" 
-                    + profileID + "/games/?tab=all";
+            return profileID;
         }
+        profileURL = "https://steamcommunity.com/id/"
+                + profileID + "/?xml=1";
+        Document doc;
+        Elements steamId64 = null;
+        try {
+            doc = Jsoup.connect(profileURL).get();
+            steamId64 = doc.select("steamID64");
+        } catch (IOException | NullPointerException ex) {
+            ex.printStackTrace();
+        }
+        return steamId64.text();
+    }
+
+    private String convertToHoursAndMinutes(String minutes_Played) {
+        int minsPlayed = Integer.valueOf(minutes_Played);
+        int hoursPlayed = minsPlayed / 60;
+        int minutesPlayed = minsPlayed % 60;
+        return hoursPlayed + " hour(s) and " + minutesPlayed + " minutes.";
     }
 
     /**
@@ -241,7 +264,6 @@ public class SteamCrawler {
      */
     private boolean noGamesOwned(ArrayList<Game> games) {
         if (games.isEmpty()) {
-            driver.quit();
             return true;
         }
         return false;
