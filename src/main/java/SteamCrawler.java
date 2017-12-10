@@ -31,7 +31,7 @@ public class SteamCrawler {
     private ArrayList<Game> allGames = new ArrayList<>();
     private int totalGamesVal;
     private String steamName;
-    private static final String steamApiToken = "";
+    private static final String steamApiToken = "B312CD463AF79C32C6A054F65C6EDE07";
     
     public SteamCrawler(IChannel channel, String profileID) {
         this.channel = channel;
