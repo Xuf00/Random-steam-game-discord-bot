@@ -61,10 +61,7 @@ public class DiscordListener {
                             return ;
                     }
                 }
-                long startTime = System.nanoTime();
                 crawler.randGame();
-                long endTime = System.nanoTime();
-                System.out.println("That took " + (endTime - startTime) + " milliseconds.");
             }
             else if (splitStr[0].equals("mostplayed")) {
                 if (argLength < 2 || argLength > 2) {

@@ -7,6 +7,13 @@
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
+
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.JsonNode;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -40,14 +47,16 @@ public class SteamCrawler {
     private void initializeProfile(String profileID) {
         steam64Id = createSteam64Id(profileID);
 
-        Document doc = null;
+        String title = "";
         try {
-            doc = Jsoup.connect("http://steamcommunity.com/profiles/" + steam64Id).get();
+            title = Jsoup.connect("http://steamcommunity.com/profiles/" + steam64Id).get().title();
         } catch (IOException ex) {
-            ex.printStackTrace();
+            throw new IllegalStateException();
         }
 
-        steamName = doc.select(".actual_persona_name").text().replaceAll("\\s+", "");
+        if (title.isEmpty()) { return ; }
+
+        steamName = title.substring(19, title.length());
     }
 
     /**
@@ -59,7 +68,7 @@ public class SteamCrawler {
         String installLink = "steam://run/" + randGame.getGameID();
 
         sendMessage(steamName + "owns " + allGames.size() + " games.\n"
-                    + "I'd recommend " + steamName + "plays **" + randGame.getGameName() + "**.\n" +
+                    + "I'd recommend " + steamName + " plays **" + randGame.getGameName() + "**.\n" +
                     "Install or play the game: " + installLink);
     }
 
@@ -179,33 +188,37 @@ public class SteamCrawler {
      */
     private ArrayList<Game> getAllGames(String steam64Id) {
         ArrayList<Game> allGames = new ArrayList<>();
-        Document doc = null;
+        HttpResponse<JsonNode> request;
         try {
-            doc = Jsoup.connect("http://api.steampowered.com/IPlayerService/GetOwnedGames/v1/" +
+            request = Unirest.get("http://api.steampowered.com/IPlayerService/GetOwnedGames/v1/" +
                     "?key=" + steamApiToken +
                     "&include_appinfo=1" +
                     "&include_played_free_games=" +
                     "&steamid=" + steam64Id +
-                    "&format=xml").get();
-        } catch (IOException ex) {
-            ex.printStackTrace();
+                    "&format=json")
+                    .asJson();
+        } catch (UnirestException ex) {
+            throw new IllegalStateException();
         }
-        Elements games = doc.getElementsByTag("message");
 
-        games.forEach(game -> {
-            String currentGame = game.select("name").text();
-            String gameId = game.select("appid").text();
-            String minutesPlayed = game.select("playtime_forever").text();
-            if (minutesPlayed.contentEquals("0")) {
-                allGames.add(new Game(gameId, currentGame));
+        JSONObject steamGameInfo = request.getBody().getObject().getJSONObject("response");
+        JSONArray allSteamGames = steamGameInfo.getJSONArray("games");
+
+        for (int i = 0; i < allSteamGames.length(); i++) {
+            JSONObject gameInfo = allSteamGames.getJSONObject(i);
+            String gameName = gameInfo.getString("name");
+            String playTime = String.valueOf(gameInfo.getInt("playtime_forever"));
+            String appId = String.valueOf(gameInfo.getInt("appid"));
+            if (playTime.contentEquals("0")) {
+                allGames.add(new Game(appId, gameName));
             }
             else {
-                String timePlayed = convertToHoursAndMinutes(minutesPlayed);
-                allGames.add(new Game(gameId, currentGame, timePlayed));
+                String timePlayed = convertToHoursAndMinutes(playTime);
+                allGames.add(new Game(appId, gameName, timePlayed));
             }
-        });
+        }
 
-        totalGamesVal = allGames.size();
+        totalGamesVal = steamGameInfo.getInt("game_count");
         return allGames;
     }
 
@@ -265,6 +278,9 @@ public class SteamCrawler {
         int minsPlayed = Integer.valueOf(minutes_Played);
         int hoursPlayed = minsPlayed / 60;
         int minutesPlayed = minsPlayed % 60;
+        if (hoursPlayed == 0) {
+            return minutesPlayed + " minutes.";
+        }
         return hoursPlayed + " hour(s) and " + minutesPlayed + " minutes.";
     }
 
