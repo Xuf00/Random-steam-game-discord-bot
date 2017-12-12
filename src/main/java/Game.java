@@ -1,6 +1,6 @@
-/*
-    This class represents a Steam game from the users library.
-*/
+/**
+ * Represents a steam game from the users library
+ */
 
 /**
  *
