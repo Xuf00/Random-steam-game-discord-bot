@@ -122,9 +122,9 @@ public class SteamCrawler {
         Game randUnplayedGame = chooseRandGame(unplayedGames);
         String installLink = "steam://run/" + randUnplayedGame.getGameID();
 
-        sendMessage(steamName + "hasn't played " + unplayedGameVal + " of their games out of "
+        sendMessage(steamName + " hasn't played " + unplayedGameVal + " of their games out of "
                 + totalGamesVal + " (" + gamePlayedPercent + "%)" + ".\n"
-                + "I recommend that " + steamName + "plays **" + randUnplayedGame.getGameName() + "**.\n"
+                + "I recommend that " + steamName + " plays **" + randUnplayedGame.getGameName() + "**.\n"
                 + "Install or play the game: " + installLink);
     }
 
