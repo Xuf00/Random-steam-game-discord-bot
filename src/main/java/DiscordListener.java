@@ -21,7 +21,6 @@ public class DiscordListener {
     @EventSubscriber
     public void onMessageEvent(MessageReceivedEvent event) {
         IChannel channel = event.getChannel();
-        IUser user = event.getAuthor();
         IMessage message = event.getMessage();
         
         // Split the users message up based on whitespace
@@ -72,7 +71,6 @@ public class DiscordListener {
                 steamName = splitStr[1];
                 SteamCrawler crawler = new SteamCrawler(channel, steamName);
                 crawler.mostPlayedGames();
-
             }
         }
     }
