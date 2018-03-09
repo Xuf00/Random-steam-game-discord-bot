@@ -65,7 +65,7 @@ public class SteamCrawler {
         }
 
         int playedGameVal = playedGames.size();
-        int gamePlayedPercent = (playedGameVal * 100 / steamUser.getTotalGames());
+        float gamePlayedPercent = (playedGameVal * 100.0f) / steamUser.getTotalGames();
         
         Game randPlayedGame = chooseRandGame(playedGames);
         String installLink = "steam://run/" + randPlayedGame.getGameID();
@@ -95,7 +95,7 @@ public class SteamCrawler {
         }
 
         int unplayedGameVal = unplayedGames.size();
-        int gamePlayedPercent = (unplayedGameVal * 100 / steamUser.getTotalGames());
+        float gamePlayedPercent = (unplayedGameVal * 100.0f) / steamUser.getTotalGames();
         
         Game randUnplayedGame = chooseRandGame(unplayedGames);
         String installLink = "steam://run/" + randUnplayedGame.getGameID();
@@ -114,17 +114,14 @@ public class SteamCrawler {
     public void mostPlayedGames() {
 
         ArrayList<Game> allGames = getAllGames(steamUser.getSteam64Id());
-        if (noGamesOwned(allGames)) { return ; }
         ArrayList<Game> playedGames = filterGames(allGames, true);
 
-        if(noGamesOwned(playedGames)) {
-            sendMessage("You haven't played any games yet.");
-            return;
-        }
         if (playedGames.size() < 5) {
-            sendMessage("You need to have played five games.");
+            sendMessage("You need to have played five games to use this command.");
             return;
         }
+
+        // Use a comparator to sort the arraylist by minutes played
         playedGames.sort(Comparator.comparingInt(Game::getMinutesPlayed));
         Collections.reverse(playedGames);
 
@@ -132,6 +129,7 @@ public class SteamCrawler {
         builder.withColor(41, 128, 185);
         builder.withDesc("The top five most played games on Steam for this user.");
         builder.withTitle(steamUser.getDisplayName() + " most played games\n");
+        builder.withTitle("Most played games for " + steamUser.getDisplayName() + "\n");
 
         builder.appendField("Game Name",
                 playedGames.get(0).getGameName() + "\n" +
@@ -168,44 +166,43 @@ public class SteamCrawler {
      * @return All of the users Steam games
      */
     private ArrayList<Game> getAllGames(String steam64Id) {
-        ArrayList<Game> allGames = new ArrayList<>();
-        HttpResponse<JsonNode> request;
         try {
-            request = Unirest.get("http://api.steampowered.com/IPlayerService/GetOwnedGames/v1/" +
+            ArrayList<Game> allGames = new ArrayList<>();
+            HttpResponse<JsonNode> request = Unirest.get("http://api.steampowered.com/IPlayerService/GetOwnedGames/v1/" +
                                                                         "?key=" + steamApiToken +
                                                                         "&include_appinfo=1" +
                                                                         "&include_played_free_games=1" +
                                                                         "&steamid=" + steam64Id +
                                                                         "&format=json")
                                                                         .asJson();
+
+            JSONObject steamGameInfo = request.getBody().getObject().getJSONObject("response");
+
+            if (steamGameInfo.length() == 0) {
+                sendMessage("Profile is private.");
+                return null;
+            }
+
+            JSONArray allSteamGames = steamGameInfo.getJSONArray("games");
+
+            for (int i = 0; i < allSteamGames.length(); i++) {
+                JSONObject gameInfo = allSteamGames.getJSONObject(i);
+                String gameName = gameInfo.getString("name");
+                String playTime = String.valueOf(gameInfo.getInt("playtime_forever"));
+                String appId = String.valueOf(gameInfo.getInt("appid"));
+                if (playTime.contentEquals("0")) {
+                    allGames.add(new Game(appId, gameName));
+                }
+                else {
+                    allGames.add(new Game(appId, gameName, Integer.valueOf(playTime)));
+                }
+            }
+
+            steamUser.setTotalGames(steamGameInfo.getInt("game_count"));
+            return allGames;
         } catch (UnirestException ex) {
             throw new IllegalStateException();
         }
-
-        JSONObject steamGameInfo = request.getBody().getObject().getJSONObject("response");
-
-        if (steamGameInfo.length() == 0) {
-            sendMessage("Profile is private.");
-            return null;
-        }
-
-        JSONArray allSteamGames = steamGameInfo.getJSONArray("games");
-
-        for (int i = 0; i < allSteamGames.length(); i++) {
-            JSONObject gameInfo = allSteamGames.getJSONObject(i);
-            String gameName = gameInfo.getString("name");
-            String playTime = String.valueOf(gameInfo.getInt("playtime_forever"));
-            String appId = String.valueOf(gameInfo.getInt("appid"));
-            if (playTime.contentEquals("0")) {
-                allGames.add(new Game(appId, gameName));
-            }
-            else {
-                allGames.add(new Game(appId, gameName, Integer.valueOf(playTime)));
-            }
-        }
-
-        steamUser.setTotalGames(steamGameInfo.getInt("game_count"));
-        return allGames;
     }
 
     /**
@@ -238,7 +235,6 @@ public class SteamCrawler {
      * @param profileID The users steam profile ID/name
      */
     private void createSteamUser(String profileID) {
-        String tempURL;
         steamUser = new SteamUser();
         if (profileID.matches("\\d+")) {
             String steamProfileURL = "http://steamcommunity.com/profiles/" + profileID;
@@ -246,14 +242,6 @@ public class SteamCrawler {
             steamUser.setProfileURL(steamProfileURL);
             steamUser.setDisplayName(getUsersDisplayName(steamProfileURL));
             return ;
-        }
-        tempURL = "http://steamcommunity.com/id/"
-                + profileID;
-        Document doc = null;
-        try {
-            doc = Jsoup.connect(tempURL).get();
-        } catch (NullPointerException | IOException ex) {
-            ex.printStackTrace();
         }
 
         String steamProfileURL = "http://steamcommunity.com/id/" + profileID;
@@ -289,21 +277,20 @@ public class SteamCrawler {
      * @return The users Steam display name
      */
     private String getUsersDisplayName(String profileURL) {
-        String title = "";
         try {
-            title = Jsoup.connect(profileURL).get().title();
+            String title = Jsoup.connect(profileURL).get().title();
+
+            if (title.isEmpty()) { return null; }
+
+            String steamName = title.substring(19, title.length());
+            if (steamName.equalsIgnoreCase("error")) {
+                System.out.println("Yep, profile doesn't exist...");
+                return null;
+            }
+            return steamName;
         } catch (IOException ex) {
             throw new IllegalStateException();
         }
-
-        if (title.isEmpty()) { return null; }
-
-        String steamName = title.substring(19, title.length());
-        if (steamName.equalsIgnoreCase("error")) {
-            System.out.println("Yep, profile doesn't exist...");
-            return null;
-        }
-        return steamName;
     }
 
     /**
