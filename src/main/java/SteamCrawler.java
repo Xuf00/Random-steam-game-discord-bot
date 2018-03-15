@@ -26,7 +26,7 @@ import sx.blah.discord.util.RequestBuffer;
  */
 public class SteamCrawler {
 
-    private static final String steamApiToken = "";
+    private static final String steamApiToken = "2CAB672E4AD925F565918BE64C8DE41E";
     private IChannel channel;
     private SteamUser steamUser;
 
@@ -74,7 +74,7 @@ public class SteamCrawler {
         sendMessage(steamUser.getDisplayName() + " has played " + playedGameVal + " of their games out of "
                     + steamUser.getTotalGames() + " (" + gamePlayedPercent + "%)" + ".\n"
                     + "I recommend that " + steamUser.getDisplayName() + " plays **" + randPlayedGame.getGameName()
-                    + "**.\nThere is currently " + convertToHoursAndMinutes(randPlayedGame.getMinutesPlayed()) + " played on this game.\n"
+                    + "**.\nThere is currently " + randPlayedGame.getGamePlayedTime() + " played on this game.\n"
                     + "Install or play the game: " + installLink + " or go to the store page: " + storePage);
     }
 
@@ -122,8 +122,7 @@ public class SteamCrawler {
         }
 
         // Use a comparator to sort the arraylist by minutes played
-        playedGames.sort(Comparator.comparingInt(Game::getMinutesPlayed));
-        Collections.reverse(playedGames);
+        playedGames.sort(Comparator.comparingInt(Game::getMinutesPlayed).reversed());
 
         EmbedBuilder builder = new EmbedBuilder();
         builder.withColor(41, 128, 185);
@@ -132,18 +131,18 @@ public class SteamCrawler {
         builder.withTitle("Most played games for " + steamUser.getDisplayName() + "\n");
 
         builder.appendField("Game Name",
-                playedGames.get(0).getGameName() + "\n" +
-                playedGames.get(1).getGameName() + "\n" +
-                playedGames.get(2).getGameName() + "\n" +
-                playedGames.get(3).getGameName() + "\n" +
-                playedGames.get(4).getGameName(), true);
+                    playedGames.get(0).getGameName() + "\n" +
+                            playedGames.get(1).getGameName() + "   "   + "\n" +
+                            playedGames.get(2).getGameName() + "   "   + "\n" +
+                            playedGames.get(3).getGameName() + "   "   + "\n" +
+                            playedGames.get(4).getGameName() + "   ", true);
 
         builder.appendField( "Hours Played",
-                convertToHoursAndMinutes(playedGames.get(0).getMinutesPlayed()) + "\n" +
-                convertToHoursAndMinutes(playedGames.get(1).getMinutesPlayed()) + "\n" +
-                convertToHoursAndMinutes(playedGames.get(2).getMinutesPlayed()) + "\n" +
-                convertToHoursAndMinutes(playedGames.get(3).getMinutesPlayed()) + "\n" +
-                convertToHoursAndMinutes(playedGames.get(4).getMinutesPlayed()), true);
+                    playedGames.get(0).getGamePlayedTime() + "\n" +
+                            playedGames.get(1).getGamePlayedTime() + "\n" +
+                            playedGames.get(2).getGamePlayedTime() + "\n" +
+                            playedGames.get(3).getGamePlayedTime() + "\n" +
+                            playedGames.get(4).getGamePlayedTime(), true);
 
         RequestBuffer.request(() ->
                 channel.sendMessage(builder.build()));
@@ -167,49 +166,60 @@ public class SteamCrawler {
      */
     private ArrayList<Game> getAllGames(String steam64Id) {
         try {
-            ArrayList<Game> allGames = new ArrayList<>();
-            HttpResponse<JsonNode> request = Unirest.get("http://api.steampowered.com/IPlayerService/GetOwnedGames/v1/" +
-                                                                        "?key=" + steamApiToken +
-                                                                        "&include_appinfo=1" +
-                                                                        "&include_played_free_games=1" +
-                                                                        "&steamid=" + steam64Id +
-                                                                        "&format=json")
-                                                                        .asJson();
-
-            JSONObject steamGameInfo = request.getBody().getObject().getJSONObject("response");
-
-            if (steamGameInfo.length() == 0) {
-                sendMessage("Profile is private.");
-                return null;
-            }
-
-            JSONArray allSteamGames = steamGameInfo.getJSONArray("games");
-
-            for (int i = 0; i < allSteamGames.length(); i++) {
-                JSONObject gameInfo = allSteamGames.getJSONObject(i);
-                String gameName = gameInfo.getString("name");
-                String playTime = String.valueOf(gameInfo.getInt("playtime_forever"));
-                String appId = String.valueOf(gameInfo.getInt("appid"));
-                if (playTime.contentEquals("0")) {
-                    allGames.add(new Game(appId, gameName));
-                }
-                else {
-                    allGames.add(new Game(appId, gameName, Integer.valueOf(playTime)));
-                }
-            }
-
-            steamUser.setTotalGames(steamGameInfo.getInt("game_count"));
-            return allGames;
+            HttpResponse<JsonNode> response = Unirest.get("http://api.steampowered.com/IPlayerService/GetOwnedGames/v1/" +
+                                                        "?key=" + steamApiToken +
+                                                        "&include_appinfo=1" +
+                                                        "&include_played_free_games=1" +
+                                                        "&steamid=" + steam64Id +
+                                                        "&format=json")
+                                                        .asJson();
+            ArrayList<Game> allUsersSteamGames = parseJSON(response);
+            return allUsersSteamGames;
         } catch (UnirestException ex) {
+            sendMessage("An error occured whilst trying to get the users games. Please try again.");
             throw new IllegalStateException();
         }
+    }
+
+    /**
+     * Parse the JSON returned by steam, contains user game information
+     * @param response The response from the Steam API, in JSON format
+     * @return
+     */
+    private ArrayList<Game> parseJSON(HttpResponse<JsonNode> response) {
+        JSONObject steamGameInfo = response.getBody().getObject().getJSONObject("response");
+
+        if (steamGameInfo.length() == 0) {
+            sendMessage("Profile is private.");
+            return null;
+        }
+
+        JSONArray allSteamGames = steamGameInfo.getJSONArray("games");
+        ArrayList<Game> allGames = new ArrayList<>();
+
+        for (int i = 0; i < allSteamGames.length(); i++) {
+            JSONObject gameInfo = allSteamGames.getJSONObject(i);
+            String gameName = gameInfo.getString("name");
+            String playTime = String.valueOf(gameInfo.getInt("playtime_forever"));
+            String appId = String.valueOf(gameInfo.getInt("appid"));
+            if (playTime.contentEquals("0")) {
+                allGames.add(new Game(appId, gameName));
+            }
+            else {
+                allGames.add(new Game(appId, gameName, Integer.valueOf(playTime)));
+            }
+        }
+
+        steamUser.setTotalGames(steamGameInfo.getInt("game_count"));
+
+        return allGames;
     }
 
     /**
      * Filter games by whether they've been played or not
      * @param games The games to filter
      * @param played Whether or not the game has been played
-     * @return
+     * @return The played or unplayed games for this user
      */
     private ArrayList<Game> filterGames(ArrayList<Game> games, boolean played) {
         ArrayList<Game> temp = new ArrayList<>();
@@ -267,6 +277,7 @@ public class SteamCrawler {
             Document doc = Jsoup.connect(profileXMLURL).parser(Parser.xmlParser()).get();
             return doc.select("steamID64").text();
         } catch (Exception ex) {
+            sendMessage("An error occured whilst trying to get the users Steam 64 ID. Please try again.");
             throw new IllegalStateException(ex);
         }
     }
@@ -284,28 +295,13 @@ public class SteamCrawler {
 
             String steamName = title.substring(19, title.length());
             if (steamName.equalsIgnoreCase("error")) {
-                System.out.println("Yep, profile doesn't exist...");
                 return null;
             }
             return steamName;
         } catch (IOException ex) {
+            sendMessage("Am error occured whilst trying to get the users display name. Please try again.");
             throw new IllegalStateException();
         }
-    }
-
-    /**
-     * Convert minutes to hours and minutes
-     * @param minutes_Played The minutes played of a game
-     * @return A formatted string of the hours and minutes played
-     */
-    private String convertToHoursAndMinutes(Integer minutes_Played) {
-        int minsPlayed = minutes_Played;
-        int hoursPlayed = minsPlayed / 60;
-        int minutesPlayed = minsPlayed % 60;
-        if (hoursPlayed == 0) {
-            return minutesPlayed + " minutes";
-        }
-        return hoursPlayed + " hour(s) and " + minutesPlayed + " minutes";
     }
 
     /**
