@@ -30,7 +30,7 @@ import sx.blah.discord.util.RequestBuffer;
  */
 public class SteamCrawler {
 
-    private static final String steamApiToken = "2CAB672E4AD925F565918BE64C8DE41E";
+    public static String steamApiToken = "";
     private IChannel channel;
     private SteamUser steamUser;
 
