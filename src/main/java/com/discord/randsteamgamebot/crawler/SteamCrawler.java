@@ -1,3 +1,5 @@
+package com.discord.randsteamgamebot.crawler;
+
 /*
     This class is used to crawl the Steam page of a user
     to retrieve their games and Steam display name, provides
@@ -7,6 +9,8 @@
 import java.io.IOException;
 import java.util.*;
 
+import com.discord.randsteamgamebot.domain.Game;
+import com.discord.randsteamgamebot.domain.SteamUser;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
@@ -26,7 +30,7 @@ import sx.blah.discord.util.RequestBuffer;
  */
 public class SteamCrawler {
 
-    private static final String steamApiToken = "2CAB672E4AD925F565918BE64C8DE41E";
+    private static final String steamApiToken = "";
     private IChannel channel;
     private SteamUser steamUser;
 

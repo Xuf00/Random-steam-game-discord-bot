@@ -1,3 +1,5 @@
+package com.discord.randsteamgamebot.domain;
+
 public class SteamUser {
 
     private String displayName;

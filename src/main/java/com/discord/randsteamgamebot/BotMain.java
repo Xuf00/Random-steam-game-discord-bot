@@ -1,9 +1,9 @@
-import sx.blah.discord.api.ClientBuilder;
+package com.discord.randsteamgamebot;
+
+import com.discord.randsteamgamebot.listeners.DiscordListener;
+import com.discord.randsteamgamebot.utils.BotUtils;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.api.events.EventDispatcher;
-import sx.blah.discord.util.DiscordException;
-
-import java.util.ArrayList;
 
 /**
  *

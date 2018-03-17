@@ -1,13 +1,15 @@
+package com.discord.randsteamgamebot.listeners;
+
 /* This class is used to listen to message events on discord,
     and respond accordingly to them based upon the contents
     of the message.
 */
 
+import com.discord.randsteamgamebot.crawler.SteamCrawler;
 import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.util.EmbedBuilder;
 import sx.blah.discord.util.RequestBuffer;
 

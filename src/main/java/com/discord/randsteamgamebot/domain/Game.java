@@ -1,3 +1,4 @@
+package com.discord.randsteamgamebot.domain;
 /**
  * Represents a steam game from the users library
  */
