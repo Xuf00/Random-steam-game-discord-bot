@@ -1,1 +1,7 @@
+# Intellij
+.idea
+*.iml
+*.iws
+*.ipr
+
 target
