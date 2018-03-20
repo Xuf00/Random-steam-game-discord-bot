@@ -3,6 +3,10 @@ package com.discord.randsteamgamebot;
 import com.discord.randsteamgamebot.crawler.SteamCrawler;
 import com.discord.randsteamgamebot.listeners.DiscordListener;
 import com.discord.randsteamgamebot.utils.BotUtils;
+import com.sun.media.jfxmedia.logging.Logger;
+import org.apache.log4j.Appender;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.api.events.EventDispatcher;
 
@@ -13,6 +17,7 @@ import sx.blah.discord.api.events.EventDispatcher;
 public class BotMain {
     
     public static void main(String[] args) {
+        BasicConfigurator.configure();
         if (args.length < 0 && args.length > 2) {
             throw new IllegalStateException("Need to pass in the bot token as an argument.");
         }

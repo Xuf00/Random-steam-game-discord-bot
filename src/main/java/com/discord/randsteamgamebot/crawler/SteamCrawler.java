@@ -56,7 +56,7 @@ public class SteamCrawler {
                     + "I'd recommend " + steamUser.getDisplayName() + " plays **" + randGame.getGameName() + "**.\n" +
                     "Install or play the game: " + randGame.getInstallLink() + " or go to the store page: " + storePage);
 
-        logger.info("Successfully returned " + randGame.getGameName() + " for profile: " + steamUser.getDisplayName());
+        logger.debug("Successfully returned " + randGame.getGameName() + " for profile: " + steamUser.getDisplayName());
     }
 
     /**
@@ -86,7 +86,7 @@ public class SteamCrawler {
                     + "**.\nThere is currently " + randPlayedGame.getGamePlayedTime() + " played on this game.\n"
                     + "Install or play the game: " + randPlayedGame.getInstallLink() + " or go to the store page: " + storePage);
 
-        logger.info("Successfully returned played game" + randPlayedGame.getGameName() + " for profile: " + steamUser.getDisplayName());
+        logger.debug("Successfully returned played game" + randPlayedGame.getGameName() + " for profile: " + steamUser.getDisplayName());
 
     }
 
@@ -117,7 +117,7 @@ public class SteamCrawler {
                 + "I recommend that " + steamUser.getDisplayName() + " plays **" + randUnplayedGame.getGameName() + "**.\n"
                 + "Install or play the game: " + randUnplayedGame.getInstallLink() + " or go to the store page: " + storePage);
 
-        logger.info("Successfully returned " + randUnplayedGame.getGameName() + " for profile: " + steamUser.getDisplayName());
+        logger.debug("Successfully returned " + randUnplayedGame.getGameName() + " for profile: " + steamUser.getDisplayName());
     }
 
     /**
@@ -140,7 +140,7 @@ public class SteamCrawler {
         RequestBuffer.request(() ->
                 channel.sendMessage(embedBuilder.build()));
 
-        logger.info("Succesfully returned most played games for profile: " + steamUser.getDisplayName());
+        logger.debug("Succesfully returned most played games for profile: " + steamUser.getDisplayName());
     }
 
     /**
@@ -170,7 +170,7 @@ public class SteamCrawler {
            channel.sendMessage(embedBuilder.build());
         });
 
-        logger.info("Succesfully returned least played games for profile: " + steamUser.getDisplayName());
+        logger.debug("Succesfully returned least played games for profile: " + steamUser.getDisplayName());
     }
 
     /**
