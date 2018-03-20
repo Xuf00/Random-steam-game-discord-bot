@@ -11,6 +11,7 @@ import java.util.*;
 
 import com.discord.randsteamgamebot.domain.Game;
 import com.discord.randsteamgamebot.domain.SteamUser;
+import com.discord.randsteamgamebot.utils.BotUtils;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
@@ -20,6 +21,8 @@ import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.parser.Parser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.util.EmbedBuilder;
 import sx.blah.discord.util.RequestBuffer;
@@ -30,7 +33,9 @@ import sx.blah.discord.util.RequestBuffer;
  */
 public class SteamCrawler {
 
-    public static String steamApiToken = "";
+    private Logger logger = LoggerFactory.getLogger(SteamCrawler.class);
+
+    public static String steamApiToken;
     private IChannel channel;
     private SteamUser steamUser;
 
@@ -45,12 +50,13 @@ public class SteamCrawler {
     public void randGame() {
         ArrayList<Game> allGames = getAllGames(steamUser.getSteam64Id());
         Game randGame = chooseRandGame(allGames);
-        String installLink = "steam://run/" + randGame.getGameID();
         String storePage = "http://store.steampowered.com/app/" + randGame.getGameID();
 
         sendMessage(steamUser.getDisplayName() + " owns " + allGames.size() + " games.\n"
                     + "I'd recommend " + steamUser.getDisplayName() + " plays **" + randGame.getGameName() + "**.\n" +
-                    "Install or play the game: " + installLink + " or go to the store page: " + storePage);
+                    "Install or play the game: " + randGame.getInstallLink() + " or go to the store page: " + storePage);
+
+        logger.info("Successfully returned " + randGame.getGameName() + " for profile: " + steamUser.getDisplayName());
     }
 
     /**
@@ -72,14 +78,16 @@ public class SteamCrawler {
         float gamePlayedPercent = (playedGameVal * 100.0f) / steamUser.getTotalGames();
         
         Game randPlayedGame = chooseRandGame(playedGames);
-        String installLink = "steam://run/" + randPlayedGame.getGameID();
         String storePage = "http://store.steampowered.com/app/" + randPlayedGame.getGameID();
 
         sendMessage(steamUser.getDisplayName() + " has played " + playedGameVal + " of their games out of "
                     + steamUser.getTotalGames() + " (" + gamePlayedPercent + "%)" + ".\n"
                     + "I recommend that " + steamUser.getDisplayName() + " plays **" + randPlayedGame.getGameName()
                     + "**.\nThere is currently " + randPlayedGame.getGamePlayedTime() + " played on this game.\n"
-                    + "Install or play the game: " + installLink + " or go to the store page: " + storePage);
+                    + "Install or play the game: " + randPlayedGame.getInstallLink() + " or go to the store page: " + storePage);
+
+        logger.info("Successfully returned played game" + randPlayedGame.getGameName() + " for profile: " + steamUser.getDisplayName());
+
     }
 
     /**
@@ -102,13 +110,14 @@ public class SteamCrawler {
         float gamePlayedPercent = (unplayedGameVal * 100.0f) / steamUser.getTotalGames();
         
         Game randUnplayedGame = chooseRandGame(unplayedGames);
-        String installLink = "steam://run/" + randUnplayedGame.getGameID();
         String storePage = "http://store.steampowered.com/app/" + randUnplayedGame.getGameID();
 
         sendMessage(steamUser.getDisplayName() + " hasn't played " + unplayedGameVal + " of their games out of "
                 + steamUser.getTotalGames() + " (" + gamePlayedPercent + "%)" + ".\n"
                 + "I recommend that " + steamUser.getDisplayName() + " plays **" + randUnplayedGame.getGameName() + "**.\n"
-                + "Install or play the game: " + installLink + " or go to the store page: " + storePage);
+                + "Install or play the game: " + randUnplayedGame.getInstallLink() + " or go to the store page: " + storePage);
+
+        logger.info("Successfully returned " + randUnplayedGame.getGameName() + " for profile: " + steamUser.getDisplayName());
     }
 
     /**
@@ -125,31 +134,43 @@ public class SteamCrawler {
             return;
         }
 
-        // Use a comparator to sort the arraylist by minutes played
-        playedGames.sort(Comparator.comparingInt(Game::getMinutesPlayed).reversed());
+        EmbedBuilder embedBuilder = BotUtils.createEmbedBuilder(playedGames, "Most played games for " + steamUser.getDisplayName() + "\n",
+                "The top five most played games on Steam for this user.", true);
+
+        RequestBuffer.request(() ->
+                channel.sendMessage(embedBuilder.build()));
+
+        logger.info("Succesfully returned most played games for profile: " + steamUser.getDisplayName());
+    }
+
+    /**
+     * Return the users least played games on Steam which at least have
+     * some time logged against them
+     */
+    public void leastPlayedGames() {
+        ArrayList<Game> allGames = getAllGames(steamUser.getSteam64Id());
+        ArrayList<Game> playedGames = filterGames(allGames, true);
+
+        if (playedGames.size() < 5) {
+            sendMessage("You need to have played five games to use this command.");
+            return ;
+        }
+
+        playedGames.sort(Comparator.comparingInt(Game::getMinutesPlayed));
 
         EmbedBuilder builder = new EmbedBuilder();
         builder.withColor(41, 128, 185);
-        builder.withDesc("The top five most played games on Steam for this user.");
-        builder.withTitle(steamUser.getDisplayName() + " most played games\n");
-        builder.withTitle("Most played games for " + steamUser.getDisplayName() + "\n");
+        builder.withDesc("The top five least played games on Steam for this user.");
+        builder.withTitle("Least played games for " + steamUser.getDisplayName() + "\n");
 
-        builder.appendField("Game Name",
-                    playedGames.get(0).getGameName() + "\n" +
-                            playedGames.get(1).getGameName() + "   "   + "\n" +
-                            playedGames.get(2).getGameName() + "   "   + "\n" +
-                            playedGames.get(3).getGameName() + "   "   + "\n" +
-                            playedGames.get(4).getGameName() + "   ", true);
+        EmbedBuilder embedBuilder = BotUtils.createEmbedBuilder(playedGames, "Least played games for " + steamUser.getDisplayName() + "\n",
+                "The top five least played games on Steam for this user. (With playtime)", false);
 
-        builder.appendField( "Hours Played",
-                    playedGames.get(0).getGamePlayedTime() + "\n" +
-                            playedGames.get(1).getGamePlayedTime() + "\n" +
-                            playedGames.get(2).getGamePlayedTime() + "\n" +
-                            playedGames.get(3).getGamePlayedTime() + "\n" +
-                            playedGames.get(4).getGamePlayedTime(), true);
+        RequestBuffer.request(() -> {
+           channel.sendMessage(embedBuilder.build());
+        });
 
-        RequestBuffer.request(() ->
-                channel.sendMessage(builder.build()));
+        logger.info("Succesfully returned least played games for profile: " + steamUser.getDisplayName());
     }
 
     /**
@@ -261,10 +282,6 @@ public class SteamCrawler {
         String steamProfileURL = "http://steamcommunity.com/id/" + profileID;
         String steamProfileXMLURL = "http://steamcommunity.com/id/" + profileID + "/?xml=1";
         String usersDisplayName = getUsersDisplayName(steamProfileURL);
-
-        if (usersDisplayName == null) {
-            sendMessage("Profile doesn't exist, try again.");
-        }
 
         steamUser.setDisplayName(usersDisplayName);
         steamUser.setSteam64Id(getUsersSteam64ID(steamProfileXMLURL));

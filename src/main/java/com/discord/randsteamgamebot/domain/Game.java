@@ -14,11 +14,13 @@ public class Game {
     private String gameID;
     private Integer minutesPlayed;
     private String gamePlayedTime;
+    private String installLink;
     
     public Game(String gameID, String playedGame, Integer minutesPlayed) {
         this.gameID = gameID;
         this.gameName = playedGame;
         this.minutesPlayed = minutesPlayed;
+        this.installLink = "steam://run/" + gameID;
         playTimeToHoursAndMinutes(minutesPlayed);
         this.playedOrNot = true;
     }
@@ -27,6 +29,7 @@ public class Game {
         this.gameID = gameID;
         this.gameName = game;
         this.minutesPlayed = 0;
+        this.installLink = "steam://run/" + gameID;
         playTimeToHoursAndMinutes(minutesPlayed);
         this.playedOrNot = false;
     }
@@ -51,11 +54,16 @@ public class Game {
         return gamePlayedTime;
     }
 
+    public String getInstallLink() {
+        return installLink;
+    }
+
     private void playTimeToHoursAndMinutes(Integer minutes_Played) {
         int hoursPlayed = minutes_Played / 60;
         int minutesPlayed = minutes_Played % 60;
         if (hoursPlayed == 0) {
-            this.gamePlayedTime = minutesPlayed + " minutes";
+            this.gamePlayedTime = minutesPlayed + " minute(s)";
+            return ;
         }
         this.gamePlayedTime = hoursPlayed + " hour(s) and " + minutesPlayed + " minutes";
     }

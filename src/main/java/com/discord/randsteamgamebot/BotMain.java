@@ -22,7 +22,7 @@ public class BotMain {
             EventDispatcher dispatcher = discordBot.getDispatcher();
             dispatcher.registerListener(new DiscordListener());
         } catch (NullPointerException ex) {
-            System.out.println("Error. Ensure the bot token is set in the programs arguments.");
+            System.out.println("Error. Ensure the bot token and steam api key is set in the programs arguments.");
             System.out.println("Go to https://discordapp.com/developers/applications/me to create a bot and get a token.");
         }
     }

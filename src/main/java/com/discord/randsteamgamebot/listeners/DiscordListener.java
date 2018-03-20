@@ -36,7 +36,7 @@ public class DiscordListener {
         if (message.getContent().charAt(0) == '!') {
             String steamName;
 
-            if (splitStr[0].equals("sbcommands")) {
+            if (splitStr[0].equals("sbhelp")) {
                 commandList(channel);
             }
             else if (splitStr[0].equals("rgame")) {
@@ -74,6 +74,16 @@ public class DiscordListener {
                 SteamCrawler crawler = new SteamCrawler(channel, steamName);
                 crawler.mostPlayedGames();
             }
+            else if (splitStr[0].equals("leastplayed")) {
+                if (argLength < 2 || argLength > 2) {
+                    commandList(channel);
+                    return ;
+                }
+
+                steamName = splitStr[1];
+                SteamCrawler crawler = new SteamCrawler(channel, steamName);
+                crawler.leastPlayedGames();
+            }
         }
     }
  
@@ -82,11 +92,13 @@ public class DiscordListener {
         EmbedBuilder builder = new EmbedBuilder();
         builder.withColor(41, 128, 185);
         builder.appendDescription("Grabs all of a users games on Steam and selects a random game. "
-                + "User can filter whether or not they want a random game they haven't played before.");
+                + "User can filter whether or not they want a random game they haven't played before. Can also see top played and least played games.");
         builder.appendField("Commands   ", "!rgame [name/17 digit ID]"
                 + "           " + "\n!rgame [name/17 digit ID] [played/unplayed]"
-                + "           " + "\n!mostplayed [name/17 digit ID]", true);
-        builder.appendField("Example", "!rgame Xufoo\n!rgame 76561198054740594 played\n!mostplayed Xufoo", true);
+                + "           " + "\n!mostplayed [name/17 digit ID]"
+                + "           " + "\n!leastplayed [name/17 digit ID]"
+                + "           " + "\n\nGithub link: https://git.io/vxnPL", true);
+        builder.appendField("Example", "!rgame Xufoo\n!rgame 76561198054740594 played\n!mostplayed Xufoo\n!leastplayed Xufoo", true);
         RequestBuffer.request(() -> channel.sendMessage(builder.build()));
     }
 }

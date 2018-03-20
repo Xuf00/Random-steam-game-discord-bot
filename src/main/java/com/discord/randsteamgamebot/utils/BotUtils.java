@@ -1,10 +1,15 @@
 package com.discord.randsteamgamebot.utils;
 
+import com.discord.randsteamgamebot.domain.Game;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.util.DiscordException;
+import sx.blah.discord.util.EmbedBuilder;
+
+import java.util.ArrayList;
+import java.util.Comparator;
 
 public class BotUtils {
 
@@ -24,6 +29,42 @@ public class BotUtils {
             logger.error("Couldn't create the discord client.");
             return null;
         }
+    }
+
+    public static EmbedBuilder createEmbedBuilder(ArrayList<Game> games, String title, String desc, boolean mostPlayed) {
+        if (mostPlayed) {
+            games.sort(Comparator.comparingInt(Game::getMinutesPlayed).reversed());
+        } else {
+            games.sort(Comparator.comparingInt(Game::getMinutesPlayed));
+        }
+
+        EmbedBuilder embedBuilder = new EmbedBuilder();
+        embedBuilder.withColor(41, 128, 185);
+        embedBuilder.withTitle(title);
+        embedBuilder.withDesc(desc);
+
+        embedBuilder.appendField("Game Name",
+                games.get(0).getGameName() + "\n" +
+                        games.get(1).getGameName() + "   "   + "\n" +
+                        games.get(2).getGameName() + "   "   + "\n" +
+                        games.get(3).getGameName() + "   "   + "\n" +
+                        games.get(4).getGameName() + "   ", true);
+
+        embedBuilder.appendField( "Time Played",
+                games.get(0).getGamePlayedTime() + "\n" +
+                        games.get(1).getGamePlayedTime() + "\n" +
+                        games.get(2).getGamePlayedTime() + "\n" +
+                        games.get(3).getGamePlayedTime() + "\n" +
+                        games.get(4).getGamePlayedTime(), true);
+
+        /*embedBuilder.appendField("Install link",
+                games.get(0).getInstallLink() + "\n" +
+                        games.get(1).getInstallLink() + "\n" +
+                        games.get(2).getInstallLink() + "\n" +
+                        games.get(3).getInstallLink() + "\n" +
+                        games.get(4).getInstallLink(), true);*/
+
+        return embedBuilder;
     }
 
 }
