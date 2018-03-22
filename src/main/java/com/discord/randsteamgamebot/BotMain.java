@@ -18,7 +18,7 @@ public class BotMain {
     
     public static void main(String[] args) {
         BasicConfigurator.configure();
-        if (args.length < 0 && args.length > 2) {
+        if (args.length <= 0 && args.length > 2) {
             throw new IllegalStateException("Need to pass in the bot token as an argument.");
         }
         IDiscordClient discordBot = BotUtils.createClient(args[0], true);

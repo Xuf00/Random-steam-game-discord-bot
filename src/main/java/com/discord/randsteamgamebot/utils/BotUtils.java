@@ -44,11 +44,11 @@ public class BotUtils {
         embedBuilder.withDesc(desc);
 
         embedBuilder.appendField("Game Name",
-                games.get(0).getGameName() + "\n" +
-                        games.get(1).getGameName() + "   "   + "\n" +
-                        games.get(2).getGameName() + "   "   + "\n" +
-                        games.get(3).getGameName() + "   "   + "\n" +
-                        games.get(4).getGameName() + "   ", true);
+                games.get(0).getEmbedLink() + "\n" +
+                        games.get(1).getEmbedLink() + "   "   + "\n" +
+                        games.get(2).getEmbedLink() + "   "   + "\n" +
+                        games.get(3).getEmbedLink() + "   "   + "\n" +
+                        games.get(4).getEmbedLink(), true);
 
         embedBuilder.appendField( "Time Played",
                 games.get(0).getGamePlayedTime() + "\n" +
@@ -56,13 +56,6 @@ public class BotUtils {
                         games.get(2).getGamePlayedTime() + "\n" +
                         games.get(3).getGamePlayedTime() + "\n" +
                         games.get(4).getGamePlayedTime(), true);
-
-        /*embedBuilder.appendField("Install link",
-                games.get(0).getInstallLink() + "\n" +
-                        games.get(1).getInstallLink() + "\n" +
-                        games.get(2).getInstallLink() + "\n" +
-                        games.get(3).getInstallLink() + "\n" +
-                        games.get(4).getInstallLink(), true);*/
 
         return embedBuilder;
     }

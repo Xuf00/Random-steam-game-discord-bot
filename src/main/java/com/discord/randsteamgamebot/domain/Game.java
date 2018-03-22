@@ -15,12 +15,16 @@ public class Game {
     private Integer minutesPlayed;
     private String gamePlayedTime;
     private String installLink;
+    private String storePage;
+    private String embedLink;
     
     public Game(String gameID, String playedGame, Integer minutesPlayed) {
         this.gameID = gameID;
         this.gameName = playedGame;
         this.minutesPlayed = minutesPlayed;
         this.installLink = "steam://run/" + gameID;
+        this.storePage = "http://store.steampowered.com/app/" + gameID;
+        this.embedLink = "[" + gameName + "]" + "(" + storePage + ")";
         playTimeToHoursAndMinutes(minutesPlayed);
         this.playedOrNot = true;
     }
@@ -30,11 +34,11 @@ public class Game {
         this.gameName = game;
         this.minutesPlayed = 0;
         this.installLink = "steam://run/" + gameID;
+        this.storePage = "http://store.steampowered.com/app/" + gameID;
+        this.embedLink = "[" + gameName + "]" + "(" + storePage + ")";
         playTimeToHoursAndMinutes(minutesPlayed);
         this.playedOrNot = false;
     }
-
-
     
     public String getGameName() {
         return gameName;
@@ -56,6 +60,14 @@ public class Game {
 
     public String getInstallLink() {
         return installLink;
+    }
+
+    public String getEmbedLink() {
+        return embedLink;
+    }
+
+    public String getStorePage() {
+        return storePage;
     }
 
     private void playTimeToHoursAndMinutes(Integer minutes_Played) {
