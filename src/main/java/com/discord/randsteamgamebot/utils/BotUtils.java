@@ -74,7 +74,7 @@ public class BotUtils {
                 + "           " + "\n!rgame [name/17 digit ID] [played/unplayed]"
                 + "           " + "\n!mostplayed [name/17 digit ID]"
                 + "           " + "\n!leastplayed [name/17 digit ID]"
-                + "           " + "\n\nGithub link: https://git.io/vxnPL", true);
+                + "           " + "\n\nGithub link: https://git.io/vxBc6", true);
         builder.appendField("Example", "!rgame Xufoo\n!rgame 76561198054740594 played\n!mostplayed Xufoo\n!leastplayed Xufoo", true);
         RequestBuffer.request(() -> channel.sendMessage(builder.build()));
     }
