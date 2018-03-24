@@ -14,11 +14,11 @@ public class CommandHandler {
     private static Map<String, Command> commandMap = new HashMap<>();
 
     static {
-        commandMap.put("sbhelptest", (event, args) -> {
+        commandMap.put("sbhelp", (event, args) -> {
             commandList(event.getChannel());
         });
 
-        commandMap.put("rgametest", (event, args) -> {
+        commandMap.put("rgame", (event, args) -> {
             if (args.size() < 1 || args.size() > 2) {
                 commandList(event.getChannel());
                 return ;
@@ -39,14 +39,14 @@ public class CommandHandler {
             crawler.randGame();
         });
 
-        commandMap.put("mostplayedtest", (event, args) -> {
+        commandMap.put("mostplayed", (event, args) -> {
             String steamName = args.get(0);
 
             SteamCrawler crawler = new SteamCrawler(event.getChannel(), steamName);
             crawler.mostPlayedGames();
         });
 
-        commandMap.put("leastplayedtest", (event, args) -> {
+        commandMap.put("leastplayed", (event, args) -> {
             String steamName = args.get(0);
 
             SteamCrawler crawler = new SteamCrawler(event.getChannel(), steamName);
