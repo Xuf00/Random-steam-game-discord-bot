@@ -2,9 +2,21 @@ package com.discord.randsteamgamebot.listeners;
 
 import com.discord.randsteamgamebot.crawler.SteamCrawler;
 import com.discord.randsteamgamebot.utils.BotUtils;
+import sx.blah.discord.api.IDiscordClient;
+import sx.blah.discord.api.IShard;
 import sx.blah.discord.api.events.EventSubscriber;
+import sx.blah.discord.api.internal.ShardImpl;
+import sx.blah.discord.api.internal.json.requests.PrivateChannelCreateRequest;
+import sx.blah.discord.handle.impl.events.guild.GuildCreateEvent;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
+import sx.blah.discord.handle.impl.obj.Channel;
+import sx.blah.discord.handle.impl.obj.Message;
+import sx.blah.discord.handle.impl.obj.PrivateChannel;
+import sx.blah.discord.handle.impl.obj.User;
+import sx.blah.discord.handle.obj.*;
+import sx.blah.discord.util.RequestBuffer;
 
+import java.sql.Timestamp;
 import java.util.*;
 
 import static com.discord.randsteamgamebot.utils.BotUtils.commandList;
@@ -12,6 +24,7 @@ import static com.discord.randsteamgamebot.utils.BotUtils.commandList;
 public class CommandHandler {
 
     private static Map<String, Command> commandMap = new HashMap<>();
+    public static IUser appOwner = null;
 
     static {
         commandMap.put("sbhelp", (event, args) -> {
@@ -55,8 +68,18 @@ public class CommandHandler {
     }
 
     @EventSubscriber
-    public void onMessageReceived(MessageReceivedEvent event) {
+    public void onGuildJoined(GuildCreateEvent event) {
+        IDiscordClient client = event.getClient();
+        client.changeStreamingPresence(StatusType.ONLINE, "On " + String.valueOf(client.getGuilds().size() + " servers."), null);
+        IPrivateChannel privateChannel = client.getOrCreatePMChannel(client.getApplicationOwner());
+        RequestBuffer.request(() -> {
+            privateChannel.sendMessage("Bot is currently hosted on " + String.valueOf(client.getGuilds().size()) + " servers.\n" +
+                    "Joined guild with name: "  + "\"" + event.getGuild().getName() + "\"");
+        });
+    }
 
+    @EventSubscriber
+    public void onMessageReceived(MessageReceivedEvent event) {
         String[] argArray = event.getMessage().getContent().split(" ");
 
         if (argArray.length == 0) {
@@ -72,8 +95,8 @@ public class CommandHandler {
         List<String> argsList = new ArrayList<>(Arrays.asList(argArray));
         argsList.remove(0);
 
-        if (commandMap.containsKey(commandStr))
-            commandMap.get(commandStr).runCommand(event, argsList);
+        /*if (commandMap.containsKey(commandStr))
+            commandMap.get(commandStr).runCommand(event, argsList);*/
 
     }
 

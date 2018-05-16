@@ -19,6 +19,7 @@ public class BotMain {
             throw new IllegalStateException("Need to pass in the bot token as an argument.");
         }
         IDiscordClient discordBot = BotUtils.createClient(args[0], true);
+        CommandHandler.appOwner = discordBot.getApplicationOwner();
         SteamCrawler.steamApiToken = args[1];
         try {
             EventDispatcher dispatcher = discordBot.getDispatcher();
