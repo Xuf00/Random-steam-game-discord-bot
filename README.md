@@ -33,9 +33,3 @@ https://bots.discord.pw/bots/348109452043485185
 
 !leastplayed [Custom URL/17 digit ID]
 ```
-
-## Donating ##
-
-I don't really expect any donations as this is purely a project for fun and to find interesting gamees from my games list but putting this here in case you'd like to:
-
-https://paypal.me/JJohnson2
