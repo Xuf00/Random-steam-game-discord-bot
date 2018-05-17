@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
+import sx.blah.discord.handle.impl.events.guild.GuildLeaveEvent;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.EmbedBuilder;
@@ -77,6 +78,10 @@ public class BotUtils {
                 + "           " + "\n\nGithub link: https://git.io/vxBc6", true);
         builder.appendField("Example", "!rgame Xufoo\n!rgame 76561198054740594 played\n!mostplayed Xufoo\n!leastplayed Xufoo", true);
         RequestBuffer.request(() -> channel.sendMessage(builder.build()));
+    }
+
+    public static void messageOwner(GuildLeaveEvent event) {
+
     }
 
 }

@@ -3,21 +3,17 @@ package com.discord.randsteamgamebot.listeners;
 import com.discord.randsteamgamebot.crawler.SteamCrawler;
 import com.discord.randsteamgamebot.utils.BotUtils;
 import sx.blah.discord.api.IDiscordClient;
-import sx.blah.discord.api.IShard;
 import sx.blah.discord.api.events.EventSubscriber;
-import sx.blah.discord.api.internal.ShardImpl;
-import sx.blah.discord.api.internal.json.requests.PrivateChannelCreateRequest;
 import sx.blah.discord.handle.impl.events.guild.GuildCreateEvent;
+import sx.blah.discord.handle.impl.events.guild.GuildLeaveEvent;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
-import sx.blah.discord.handle.impl.obj.Channel;
-import sx.blah.discord.handle.impl.obj.Message;
-import sx.blah.discord.handle.impl.obj.PrivateChannel;
-import sx.blah.discord.handle.impl.obj.User;
-import sx.blah.discord.handle.obj.*;
+import sx.blah.discord.handle.obj.IPrivateChannel;
+import sx.blah.discord.handle.obj.IUser;
+import sx.blah.discord.handle.obj.StatusType;
 import sx.blah.discord.util.RequestBuffer;
 
-import java.sql.Timestamp;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.discord.randsteamgamebot.utils.BotUtils.commandList;
 
@@ -70,11 +66,30 @@ public class CommandHandler {
     @EventSubscriber
     public void onGuildJoined(GuildCreateEvent event) {
         IDiscordClient client = event.getClient();
-        client.changeStreamingPresence(StatusType.ONLINE, "On " + String.valueOf(client.getGuilds().size() + " servers."), null);
+        client.changeStreamingPresence(StatusType.ONLINE, "On " + String.valueOf(client.getGuilds().size()) + " servers.", null);
         IPrivateChannel privateChannel = client.getOrCreatePMChannel(client.getApplicationOwner());
         RequestBuffer.request(() -> {
-            privateChannel.sendMessage("Bot is currently hosted on " + String.valueOf(client.getGuilds().size()) + " servers.\n" +
-                    "Joined guild with name: "  + "\"" + event.getGuild().getName() + "\"");
+            privateChannel.sendMessage("Bot is currently active in " + String.valueOf(client.getGuilds().size()) + " servers.\n" +
+                    "Joined guild with name: "  + "\"" + event.getGuild().getName() + "\"\n" +
+                    "Servers user count (incl bots): " + event.getGuild().getTotalMemberCount() + "\n" +
+                    "Servers user count (excl. bots): " +
+                    event.getGuild().getUsers().stream().filter(user -> !user.isBot() )
+                        .collect(Collectors.toList()).size());
+        });
+    }
+
+    @EventSubscriber
+    public void onGuildLeft(GuildLeaveEvent event) {
+        IDiscordClient client = event.getClient();
+        client.changeStreamingPresence(StatusType.ONLINE, "On " + String.valueOf(client.getGuilds().size()) + " servers.", null);
+        IPrivateChannel privateChannel = client.getOrCreatePMChannel(client.getApplicationOwner());
+        RequestBuffer.request(() -> {
+           privateChannel.sendMessage("Bot is currently active in " + String.valueOf(client.getGuilds().size()) + " servers.\n" +
+                    "Left guild with name: " + "\"" + event.getGuild().getName() + "\"\n" +
+                    "Servers user count (incl bots): " + event.getGuild().getTotalMemberCount() + "\n" +
+                   "Servers user count (excl. bots): " +
+                   event.getGuild().getUsers().stream().filter(user -> !user.isBot() )
+                           .collect(Collectors.toList()).size());
         });
     }
 
@@ -95,8 +110,8 @@ public class CommandHandler {
         List<String> argsList = new ArrayList<>(Arrays.asList(argArray));
         argsList.remove(0);
 
-        /*if (commandMap.containsKey(commandStr))
-            commandMap.get(commandStr).runCommand(event, argsList);*/
+        if (commandMap.containsKey(commandStr))
+            commandMap.get(commandStr).runCommand(event, argsList);
 
     }
 
