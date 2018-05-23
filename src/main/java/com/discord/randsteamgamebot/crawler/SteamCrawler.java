@@ -6,26 +6,17 @@ package com.discord.randsteamgamebot.crawler;
     methods to return a random game
 */
 
-import java.io.IOException;
-import java.util.*;
-
 import com.discord.randsteamgamebot.domain.Game;
 import com.discord.randsteamgamebot.domain.SteamUser;
 import com.discord.randsteamgamebot.utils.BotUtils;
-import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.JsonNode;
-import com.mashape.unirest.http.Unirest;
-import com.mashape.unirest.http.exceptions.UnirestException;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.parser.Parser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.util.EmbedBuilder;
 import sx.blah.discord.util.RequestBuffer;
+
+import java.util.ArrayList;
+import java.util.Comparator;
 
 /**
  *
@@ -39,17 +30,24 @@ public class SteamCrawler {
     private IChannel channel;
     private SteamUser steamUser;
 
-    public SteamCrawler(IChannel channel, String profileID) {
+    public SteamCrawler(IChannel channel, SteamUser steamUser) {
         this.channel = channel;
-        createSteamUser(profileID);
+        this.steamUser = steamUser;
     }
 
     /**
      * Choose a random game for the user to play.
      */
     public void randGame() {
-        ArrayList<Game> allGames = getAllGames(steamUser.getSteam64Id());
-        Game randGame = chooseRandGame(allGames);
+        ArrayList<Game> allGames = Game.getAllGames(steamUser.getSteam64Id());
+
+        if (Game.noGamesOwned(allGames)) {
+            sendMessage("You either don't own any games or your privacy settings are affecting the result.");
+            return ;
+        }
+
+        steamUser.setTotalGames(allGames.size());
+        Game randGame = Game.chooseRandGame(allGames);
         String storePage = "http://store.steampowered.com/app/" + randGame.getGameID();
 
         sendMessage(steamUser.getDisplayName() + " owns " + allGames.size() + " games.\n"
@@ -66,18 +64,24 @@ public class SteamCrawler {
      */
     public void randPlayedGame() {
 
-        ArrayList<Game> allGames = getAllGames(steamUser.getSteam64Id());
-        if (noGamesOwned(allGames)) { return ; }
-        ArrayList<Game> playedGames = filterGames(allGames, true);
+        ArrayList<Game> allGames = Game.getAllGames(steamUser.getSteam64Id());
 
-        if (noGamesOwned(playedGames)) {
-            sendMessage("You haven't played any games yet.");
+        if (Game.noGamesOwned(allGames)) {
+            sendMessage("You either don't own any games or your privacy settings are affecting the result.");
+            return ;
+        }
+
+        steamUser.setTotalGames(allGames.size());
+        ArrayList<Game> playedGames = Game.filterGames(allGames, true);
+
+        if (Game.noGamesOwned(playedGames)) {
+            sendMessage("You haven't played any games yet or your privacy setting is hiding your game play time.");
         }
 
         int playedGameVal = playedGames.size();
         float gamePlayedPercent = (playedGameVal * 100.0f) / steamUser.getTotalGames();
         
-        Game randPlayedGame = chooseRandGame(playedGames);
+        Game randPlayedGame = Game.chooseRandGame(playedGames);
         String storePage = "http://store.steampowered.com/app/" + randPlayedGame.getGameID();
 
         sendMessage(steamUser.getDisplayName() + " has played " + playedGameVal + " of their games out of "
@@ -97,19 +101,25 @@ public class SteamCrawler {
      */
     public void randUnplayedGame() {
 
-        ArrayList<Game> allGames = getAllGames(steamUser.getSteam64Id());
-        if (noGamesOwned(allGames)) { return ; }
-        ArrayList<Game> unplayedGames = filterGames(allGames, false);
+        ArrayList<Game> allGames = Game.getAllGames(steamUser.getSteam64Id());
 
-        if (noGamesOwned(unplayedGames)) {
+        if (Game.noGamesOwned(allGames)) {
+            sendMessage("You either don't own any games or your privacy settings are affecting the result.");
+            return ;
+        }
+
+        steamUser.setTotalGames(allGames.size());
+        ArrayList<Game> unplayedGames = Game.filterGames(allGames, false);
+
+        if (Game.noGamesOwned(unplayedGames)) {
             sendMessage("You've played all of your games already.");
             return ;
         }
 
         int unplayedGameVal = unplayedGames.size();
         float gamePlayedPercent = (unplayedGameVal * 100.0f) / steamUser.getTotalGames();
-        
-        Game randUnplayedGame = chooseRandGame(unplayedGames);
+
+        Game randUnplayedGame = Game.chooseRandGame(unplayedGames);
         String storePage = "http://store.steampowered.com/app/" + randUnplayedGame.getGameID();
 
         sendMessage(steamUser.getDisplayName() + " hasn't played " + unplayedGameVal + " of their games out of "
@@ -126,8 +136,15 @@ public class SteamCrawler {
      */
     public void mostPlayedGames() {
 
-        ArrayList<Game> allGames = getAllGames(steamUser.getSteam64Id());
-        ArrayList<Game> playedGames = filterGames(allGames, true);
+        ArrayList<Game> allGames = Game.getAllGames(steamUser.getSteam64Id());
+
+        if (Game.noGamesOwned(allGames)) {
+            sendMessage("You either don't own any games or your privacy settings are affecting the result.");
+            return ;
+        }
+
+        steamUser.setTotalGames(allGames.size());
+        ArrayList<Game> playedGames = Game.filterGames(allGames, true);
 
         if (playedGames.size() < 5) {
             sendMessage("You need to have played five games to use this command.");
@@ -140,7 +157,7 @@ public class SteamCrawler {
         RequestBuffer.request(() ->
                 channel.sendMessage(embedBuilder.build()));
 
-        logger.debug("Succesfully returned most played games for profile: " + steamUser.getDisplayName());
+        logger.debug("Successfully returned most played games for profile: " + steamUser.getDisplayName());
     }
 
     /**
@@ -148,8 +165,15 @@ public class SteamCrawler {
      * some time logged against them
      */
     public void leastPlayedGames() {
-        ArrayList<Game> allGames = getAllGames(steamUser.getSteam64Id());
-        ArrayList<Game> playedGames = filterGames(allGames, true);
+        ArrayList<Game> allGames = Game.getAllGames(steamUser.getSteam64Id());
+
+        if (Game.noGamesOwned(allGames)) {
+            sendMessage("You either don't own any games or your privacy settings are affecting the result.");
+            return ;
+        }
+
+        steamUser.setTotalGames(allGames.size());
+        ArrayList<Game> playedGames = Game.filterGames(allGames, true);
 
         if (playedGames.size() < 5) {
             sendMessage("You need to have played five games to use this command.");
@@ -174,167 +198,11 @@ public class SteamCrawler {
     }
 
     /**
-     * Helpful method for choosing a random game
-     * @param games The games in which to choose a random game from
-     * @return A random game
-     */
-    private Game chooseRandGame(ArrayList<Game> games) {
-        Random r = new Random();
-        int rand = r.nextInt(games.size());
-        return games.get(rand);
-    }
-
-    /**
-     * Retrieve all of the users games
-     * @param steam64Id The Steam 64 bit ID of the user
-     * @return All of the users Steam games
-     */
-    private ArrayList<Game> getAllGames(String steam64Id) {
-        try {
-            HttpResponse<JsonNode> response = Unirest.get("http://api.steampowered.com/IPlayerService/GetOwnedGames/v1/" +
-                                                        "?key=" + steamApiToken +
-                                                        "&include_appinfo=1" +
-                                                        "&include_played_free_games=1" +
-                                                        "&steamid=" + steam64Id +
-                                                        "&format=json")
-                                                        .asJson();
-            ArrayList<Game> allUsersSteamGames = parseJSON(response);
-            return allUsersSteamGames;
-        } catch (UnirestException ex) {
-            sendMessage("An error occured whilst trying to get the users games. Please try again.");
-            throw new IllegalStateException();
-        }
-    }
-
-    /**
-     * Parse the JSON returned by steam, contains user game information
-     * @param response The response from the Steam API, in JSON format
-     * @return
-     */
-    private ArrayList<Game> parseJSON(HttpResponse<JsonNode> response) {
-        JSONObject steamGameInfo = response.getBody().getObject().getJSONObject("response");
-
-        if (steamGameInfo.length() == 0) {
-            sendMessage("Profile is private.");
-            return null;
-        }
-
-        JSONArray allSteamGames = steamGameInfo.getJSONArray("games");
-        ArrayList<Game> allGames = new ArrayList<>();
-
-        for (int i = 0; i < allSteamGames.length(); i++) {
-            JSONObject gameInfo = allSteamGames.getJSONObject(i);
-            String gameName = gameInfo.getString("name");
-            String playTime = String.valueOf(gameInfo.getInt("playtime_forever"));
-            String appId = String.valueOf(gameInfo.getInt("appid"));
-            if (playTime.contentEquals("0")) {
-                allGames.add(new Game(appId, gameName));
-            }
-            else {
-                allGames.add(new Game(appId, gameName, Integer.valueOf(playTime)));
-            }
-        }
-
-        steamUser.setTotalGames(steamGameInfo.getInt("game_count"));
-
-        return allGames;
-    }
-
-    /**
-     * Filter games by whether they've been played or not
-     * @param games The games to filter
-     * @param played Whether or not the game has been played
-     * @return The played or unplayed games for this user
-     */
-    private ArrayList<Game> filterGames(ArrayList<Game> games, boolean played) {
-        ArrayList<Game> temp = new ArrayList<>();
-        for (Game game : games) {
-            if (game.getPlayStatus() == played) {
-                temp.add(game);
-            }
-        }
-        return temp;
-    }
-
-    /**
      * Send a message on the discord channel
      * @param message Message to send
      */
     private void sendMessage(String message) {
         RequestBuffer.request(() ->
             channel.sendMessage(message));
-    }
-
-    /**
-     * Create the steam user
-     * @param profileID The users steam profile ID/name
-     */
-    private void createSteamUser(String profileID) {
-        steamUser = new SteamUser();
-        if (profileID.matches("\\d+")) {
-            String steamProfileURL = "http://steamcommunity.com/profiles/" + profileID;
-            steamUser.setSteam64Id(profileID);
-            steamUser.setProfileURL(steamProfileURL);
-            steamUser.setDisplayName(getUsersDisplayName(steamProfileURL));
-            return ;
-        }
-
-        String steamProfileURL = "http://steamcommunity.com/id/" + profileID;
-        String steamProfileXMLURL = "http://steamcommunity.com/id/" + profileID + "/?xml=1";
-        String usersDisplayName = getUsersDisplayName(steamProfileURL);
-
-        steamUser.setDisplayName(usersDisplayName);
-        steamUser.setSteam64Id(getUsersSteam64ID(steamProfileXMLURL));
-        steamUser.setProfileURL(steamProfileURL);
-    }
-
-    /**
-     * Get the users specific Steam 64 ID, required for the Steam Web API
-     * @param profileXMLURL The XML URL of the users profile
-     * @return The users steam 64 ID
-     */
-    private String getUsersSteam64ID(String profileXMLURL) {
-        try {
-            Document doc = Jsoup.connect(profileXMLURL).parser(Parser.xmlParser()).get();
-            return doc.select("steamID64").text();
-        } catch (Exception ex) {
-            sendMessage("An error occured whilst trying to get the users Steam 64 ID. Please try again.");
-            throw new IllegalStateException(ex);
-        }
-    }
-
-    /**
-     * Get the users specific display name from Steam
-     * @param profileURL The URL of the users profile
-     * @return The users Steam display name
-     */
-    private String getUsersDisplayName(String profileURL) {
-        try {
-            String title = Jsoup.connect(profileURL).get().title();
-
-            if (title.isEmpty()) { return null; }
-
-            String steamName = title.substring(19, title.length());
-            if (steamName.equalsIgnoreCase("error")) {
-                return null;
-            }
-            return steamName;
-        } catch (IOException ex) {
-            sendMessage("Am error occured whilst trying to get the users display name. Please try again.");
-            throw new IllegalStateException();
-        }
-    }
-
-    /**
-     * Check if the user actually owns any games
-     * @param games The games to pass in
-     * @return Whether or not at least one game exists
-     */
-    private boolean noGamesOwned(ArrayList<Game> games) {
-        if (games.isEmpty()) {
-            sendMessage("No games owned or private profile.");
-            return true;
-        }
-        return false;
     }
 }

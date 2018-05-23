@@ -3,13 +3,13 @@ A simple bot for discord to give a user a random game to play from their Steam p
 
 See [Commands](#commands) for usages.
 
-## Current version ## 
-Works well but has a few additions I'd like to make.
+## Important ##
+Since Steam updated what users can decide to show on their profile, I have no possible way to prevent every edge case in the bot. An ideal scenario would be a level of privacy indicated in the Steam API response, but this is currently not provided.
 
-Looking to add:
-- General refactoring of code
-- Speeding up the bots responses (Ties in with above)
-- Fixing and handling errors that occasionally appear
+If you want to avoid any issues just ensure you have your privacy settings set to "Public".
+
+## Current version ## 
+Works well, no more major tweaks unless Steam update their API to allow me to check a users privacy level.
 
 ## Hosting ##
 
