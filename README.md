@@ -11,6 +11,8 @@ If you want to avoid any issues just ensure you have your privacy settings set t
 ## Current version ## 
 Works well, no more major tweaks unless Steam update their API to allow me to check a users privacy level.
 
+Update: Plans to refactor how everything to do with how commands are handled as I'm not currently happy with the current approach.
+
 ## Hosting ##
 
 The bot is now being hosted on an Amazon EC2 instance. You can invite the bot to your server using this link:

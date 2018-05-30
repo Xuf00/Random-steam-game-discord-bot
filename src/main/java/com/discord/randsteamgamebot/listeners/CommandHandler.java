@@ -16,6 +16,7 @@ public class CommandHandler {
     private static Map<String, Command> commandMap = new HashMap<>();
     public static IUser appOwner = null;
 
+
     static {
         commandMap.put("sbhelp", (event, args) -> {
             commandList(event.getChannel());
