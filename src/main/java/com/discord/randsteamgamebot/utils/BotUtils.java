@@ -7,7 +7,6 @@ import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.handle.impl.events.guild.GuildLeaveEvent;
 import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.EmbedBuilder;
 import sx.blah.discord.util.RequestBuffer;
 
@@ -20,20 +19,12 @@ public class BotUtils {
 
     public final static String BOT_PREFIX = "!";
 
-    public static IDiscordClient createClient(String token, boolean login) {
-        ClientBuilder clientBuilder = new ClientBuilder();
-        clientBuilder.withToken(token);
-        clientBuilder.withRecommendedShardCount();
-        try {
-            if (login) {
-                return clientBuilder.login();
-            } else {
-                return clientBuilder.build();
-            }
-        } catch (DiscordException e) {
-            logger.error("Couldn't create the discord client.");
-            return null;
-        }
+    public static IDiscordClient createClient(String token) {
+        return new ClientBuilder()
+                .withToken(token)
+                .withRecommendedShardCount()
+                .setMaxReconnectAttempts(100000)
+                .build();
     }
 
     public static EmbedBuilder createEmbedBuilder(ArrayList<Game> games, String title, String desc, boolean mostPlayed) {
@@ -69,8 +60,9 @@ public class BotUtils {
     public static void commandList(IChannel channel) {
         EmbedBuilder builder = new EmbedBuilder();
         builder.withColor(41, 128, 185);
-        builder.appendDescription("Grabs all of a users games on Steam and selects a random game. "
-                + "User can filter whether or not they want a random game they haven't played before. Can also see top played and least played games.");
+        builder.appendDescription("**Important: Your Steam Privacy settings will affect the outcome, so try to make everything public.**\n\n"
+                                    + "Grabs all of a users games on Steam and selects a random game."
+                                    + " User can filter whether or not they want a random game they haven't played before. Can also see top played and least played games.");
         builder.appendField("Commands   ", "!rgame [name/17 digit ID]"
                 + "           " + "\n!rgame [name/17 digit ID] [played/unplayed]"
                 + "           " + "\n!mostplayed [name/17 digit ID]"

@@ -8,7 +8,7 @@ public class BotUtilsTest extends TestCase {
 
     public void testCreateClient() throws Exception {
         String botToken = "";
-        IDiscordClient client = BotUtils.createClient(botToken, true);
+        IDiscordClient client = BotUtils.createClient(botToken);
         Assert.assertNotNull("Token is incorrect", client);
     }
 
