@@ -55,9 +55,9 @@ public class SteamUser {
 
     /**
      * Check if the users profile is private, "timecreated" only returns if it's not private
-     * @return
+     * @return Whether or not the profile is private
      */
-    public boolean profileIsPrivate() {
+    private boolean profileIsPrivate() {
         try {
             HttpResponse<JsonNode> response = Unirest.get("http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=" + steamApiToken +
                     "&steamids=" + steam64Id).asJson();
@@ -90,7 +90,7 @@ public class SteamUser {
             }
             return steamName;
         } catch (IOException ex) {
-            throw new IllegalStateException();
+            throw new IllegalStateException(ex);
         }
     }
 

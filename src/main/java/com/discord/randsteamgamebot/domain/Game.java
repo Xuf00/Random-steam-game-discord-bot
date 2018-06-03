@@ -9,8 +9,11 @@ import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import static com.discord.randsteamgamebot.crawler.SteamCrawler.steamApiToken;
@@ -20,6 +23,8 @@ import static com.discord.randsteamgamebot.crawler.SteamCrawler.steamApiToken;
  * @author Jack
  */
 public class Game {
+
+    private static Logger logger = LoggerFactory.getLogger(Game.class);
  
     private String gameName;
     private boolean playedOrNot;
@@ -29,6 +34,7 @@ public class Game {
     private String installLink;
     private String storePage;
     private String embedLink;
+
     
     public Game(String gameID, String playedGame, Integer minutesPlayed) {
         this.gameID = gameID;
@@ -97,7 +103,7 @@ public class Game {
      * @param games The games in which to choose a random game from
      * @return A random game
      */
-    public static Game chooseRandGame(ArrayList<Game> games) {
+    public static Game chooseRandGame(List<Game> games) {
         Random r = new Random();
         int rand = r.nextInt(games.size());
         return games.get(rand);
@@ -120,7 +126,7 @@ public class Game {
             ArrayList<Game> allUsersSteamGames = parseJSON(response);
             return allUsersSteamGames;
         } catch (UnirestException ex) {
-            throw new IllegalStateException();
+            throw new IllegalStateException(ex);
         }
     }
 
@@ -160,7 +166,7 @@ public class Game {
      * @param played Whether or not the game has been played
      * @return The played or unplayed games for this user
      */
-    public static ArrayList<Game> filterGames(ArrayList<Game> games, boolean played) {
+    public static ArrayList<Game> filterGames(List<Game> games, boolean played) {
         ArrayList<Game> temp = new ArrayList<>();
         for (Game game : games) {
             if (game.getPlayStatus() == played) {
@@ -175,7 +181,7 @@ public class Game {
      * @param games The games to pass in
      * @return Whether or not at least one game exists
      */
-    public static boolean noGamesOwned(ArrayList<Game> games) {
+    public static boolean noGamesOwned(List<Game> games) {
         if (games == null || games.isEmpty()) {
             return true;
         }

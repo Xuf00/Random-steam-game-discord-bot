@@ -9,14 +9,22 @@ package com.discord.randsteamgamebot.crawler;
 import com.discord.randsteamgamebot.domain.Game;
 import com.discord.randsteamgamebot.domain.SteamUser;
 import com.discord.randsteamgamebot.utils.BotUtils;
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.JsonNode;
+import com.mashape.unirest.http.Unirest;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sx.blah.discord.handle.obj.IChannel;
+import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.util.EmbedBuilder;
 import sx.blah.discord.util.RequestBuffer;
 
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -39,10 +47,12 @@ public class SteamCrawler {
      * Choose a random game for the user to play.
      */
     public void randGame() {
+        IMessage message = sendMessage("Retrieving information for " + steamUser.getDisplayName() + "...");;
+
         ArrayList<Game> allGames = Game.getAllGames(steamUser.getSteam64Id());
 
         if (Game.noGamesOwned(allGames)) {
-            sendMessage("You either don't own any games or your privacy settings are affecting the result.");
+            message.edit("You either don't own any games or your privacy settings are affecting the result.");
             return ;
         }
 
@@ -50,11 +60,11 @@ public class SteamCrawler {
         Game randGame = Game.chooseRandGame(allGames);
         String storePage = "http://store.steampowered.com/app/" + randGame.getGameID();
 
-        sendMessage(steamUser.getDisplayName() + " owns " + allGames.size() + " games.\n"
+        message.edit(steamUser.getDisplayName() + " owns " + allGames.size() + " games.\n"
                     + "I'd recommend " + steamUser.getDisplayName() + " plays **" + randGame.getGameName() + "**.\n" +
                     "Install or play the game: " + randGame.getInstallLink() + " or go to the store page: " + storePage);
 
-        logger.debug("Successfully returned " + randGame.getGameName() + " for profile: " + steamUser.getDisplayName());
+        logger.info("Successfully returned played game " + randGame.getGameName() + " for profile: " + steamUser.getDisplayName());
     }
 
     /**
@@ -63,11 +73,12 @@ public class SteamCrawler {
      * the percentage of games they have played
      */
     public void randPlayedGame() {
+        IMessage message = sendMessage("Retrieving information for " + steamUser.getDisplayName() + "...");;
 
         ArrayList<Game> allGames = Game.getAllGames(steamUser.getSteam64Id());
 
         if (Game.noGamesOwned(allGames)) {
-            sendMessage("You either don't own any games or your privacy settings are affecting the result.");
+            message.edit("You either don't own any games or your privacy settings are affecting the result.");
             return ;
         }
 
@@ -75,7 +86,7 @@ public class SteamCrawler {
         ArrayList<Game> playedGames = Game.filterGames(allGames, true);
 
         if (Game.noGamesOwned(playedGames)) {
-            sendMessage("You haven't played any games yet or your privacy setting is hiding your game play time.");
+            message.edit("You haven't played any games yet or your privacy setting is hiding your game play time.");
         }
 
         int playedGameVal = playedGames.size();
@@ -84,13 +95,13 @@ public class SteamCrawler {
         Game randPlayedGame = Game.chooseRandGame(playedGames);
         String storePage = "http://store.steampowered.com/app/" + randPlayedGame.getGameID();
 
-        sendMessage(steamUser.getDisplayName() + " has played " + playedGameVal + " of their games out of "
+        message.edit(steamUser.getDisplayName() + " has played " + playedGameVal + " of their games out of "
                     + steamUser.getTotalGames() + " (" + gamePlayedPercent + "%)" + ".\n"
                     + "I recommend that " + steamUser.getDisplayName() + " plays **" + randPlayedGame.getGameName()
                     + "**.\nThere is currently " + randPlayedGame.getGamePlayedTime() + " played on this game.\n"
                     + "Install or play the game: " + randPlayedGame.getInstallLink() + " or go to the store page: " + storePage);
 
-        logger.debug("Successfully returned played game" + randPlayedGame.getGameName() + " for profile: " + steamUser.getDisplayName());
+        logger.info("Successfully returned played game " + randPlayedGame.getGameName() + " for profile: " + steamUser.getDisplayName());
 
     }
 
@@ -100,11 +111,12 @@ public class SteamCrawler {
      * the percentage of games they have not yet played
      */
     public void randUnplayedGame() {
+        IMessage message = sendMessage("Retrieving information for " + steamUser.getDisplayName() + "...");;
 
         ArrayList<Game> allGames = Game.getAllGames(steamUser.getSteam64Id());
 
         if (Game.noGamesOwned(allGames)) {
-            sendMessage("You either don't own any games or your privacy settings are affecting the result.");
+            message.edit("You either don't own any games or your privacy settings are affecting the result.");
             return ;
         }
 
@@ -112,7 +124,7 @@ public class SteamCrawler {
         ArrayList<Game> unplayedGames = Game.filterGames(allGames, false);
 
         if (Game.noGamesOwned(unplayedGames)) {
-            sendMessage("You've played all of your games already.");
+            message.edit("You've played all of your games already.");
             return ;
         }
 
@@ -122,12 +134,12 @@ public class SteamCrawler {
         Game randUnplayedGame = Game.chooseRandGame(unplayedGames);
         String storePage = "http://store.steampowered.com/app/" + randUnplayedGame.getGameID();
 
-        sendMessage(steamUser.getDisplayName() + " hasn't played " + unplayedGameVal + " of their games out of "
+        message.edit(steamUser.getDisplayName() + " hasn't played " + unplayedGameVal + " of their games out of "
                 + steamUser.getTotalGames() + " (" + gamePlayedPercent + "%)" + ".\n"
                 + "I recommend that " + steamUser.getDisplayName() + " plays **" + randUnplayedGame.getGameName() + "**.\n"
                 + "Install or play the game: " + randUnplayedGame.getInstallLink() + " or go to the store page: " + storePage);
 
-        logger.debug("Successfully returned " + randUnplayedGame.getGameName() + " for profile: " + steamUser.getDisplayName());
+        logger.info("Successfully returned played game " + randUnplayedGame.getGameName() + " for profile: " + steamUser.getDisplayName());
     }
 
     /**
@@ -135,11 +147,12 @@ public class SteamCrawler {
      * nicely formatted and then output to them
      */
     public void mostPlayedGames() {
+        IMessage message = sendMessage("Retrieving information for " + steamUser.getDisplayName() + "...");;
 
         ArrayList<Game> allGames = Game.getAllGames(steamUser.getSteam64Id());
 
         if (Game.noGamesOwned(allGames)) {
-            sendMessage("You either don't own any games or your privacy settings are affecting the result.");
+            message.edit("You either don't own any games or your privacy settings are affecting the result.");
             return ;
         }
 
@@ -147,28 +160,30 @@ public class SteamCrawler {
         ArrayList<Game> playedGames = Game.filterGames(allGames, true);
 
         if (playedGames.size() < 5) {
-            sendMessage("You need to have played five games to use this command.");
-            return;
+            message.edit("You need to have played five games to use this command.");
+            return ;
         }
 
         EmbedBuilder embedBuilder = BotUtils.createEmbedBuilder(playedGames, "Most played games for " + steamUser.getDisplayName() + "\n",
                 "The top five most played games on Steam for this user.", true);
 
         RequestBuffer.request(() ->
-                channel.sendMessage(embedBuilder.build()));
+                message.edit(embedBuilder.build()));
 
-        logger.debug("Successfully returned most played games for profile: " + steamUser.getDisplayName());
+        logger.info("Successfully returned most played games for profile: " + steamUser.getDisplayName());
     }
 
     /**
-     * Return the users least played games on Steam which at least have
+     * Return the users 5 least played games on Steam which at least have
      * some time logged against them
      */
     public void leastPlayedGames() {
+        IMessage message = sendMessage("Retrieving information for " + steamUser.getDisplayName() + "...");;
+
         ArrayList<Game> allGames = Game.getAllGames(steamUser.getSteam64Id());
 
         if (Game.noGamesOwned(allGames)) {
-            sendMessage("You either don't own any games or your privacy settings are affecting the result.");
+            message.edit("You either don't own any games or your privacy settings are affecting the result.");
             return ;
         }
 
@@ -176,7 +191,7 @@ public class SteamCrawler {
         ArrayList<Game> playedGames = Game.filterGames(allGames, true);
 
         if (playedGames.size() < 5) {
-            sendMessage("You need to have played five games to use this command.");
+            message.edit("You need to have played five games to use this command.");
             return ;
         }
 
@@ -191,18 +206,70 @@ public class SteamCrawler {
                 "The top five least played games on Steam for this user. (With playtime)", false);
 
         RequestBuffer.request(() -> {
-           channel.sendMessage(embedBuilder.build());
+           message.edit(embedBuilder.build());
         });
 
-        logger.debug("Succesfully returned least played games for profile: " + steamUser.getDisplayName());
+        logger.info("Successfully returned least played games for profile: " + steamUser.getDisplayName());
     }
+
+    /**
+     * Return a random game that the user owns based on genre
+     * @param genre The genre to search
+     */
+    public void randGameByGenre(String genre) {
+        IMessage message = sendMessage("Retrieving information for " + steamUser.getDisplayName() + "...");
+
+        ArrayList<Game> allGames = Game.getAllGames(steamUser.getSteam64Id());
+
+        if (Game.noGamesOwned(allGames)) {
+            message.edit("You either don't own any games or your privacy settings are affecting the result.");
+            return ;
+        }
+
+        steamUser.setTotalGames(allGames.size());
+
+        try {
+            HttpResponse<JsonNode> response = Unirest.get("https://steamspy.com/api.php?request=genre&genre=" + URLEncoder.encode(genre, "UTF-8")).asJson();
+            JSONObject object = response.getBody().getObject();
+
+            allGames.forEach(game -> {
+                if (object.has(game.getGameID())) {
+                    System.out.println(game.getGameName() + " has the genre " + genre);
+                }
+            });
+
+            List<Game> gamesByGenre = allGames.stream()
+                    .filter(game -> object.has(game.getGameID()))
+                    .collect(Collectors.toList());
+
+            if (Game.noGamesOwned(gamesByGenre)) {
+                message.edit("You don't own any games in this genre or you entered it incorrectly.");
+                return ;
+            }
+
+            Game randomGameFromGenre = Game.chooseRandGame(gamesByGenre);
+
+            String storePage = "http://store.steampowered.com/app/" + randomGameFromGenre.getGameID();
+
+            message.edit(steamUser.getDisplayName() + " owns " + gamesByGenre.size() + " games in the **" + genre + "** genre.\n"
+                    + "I'd recommend " + steamUser.getDisplayName() + " plays **" + randomGameFromGenre.getGameName() + "**.\n" +
+                    "Install or play the game: " + randomGameFromGenre.getInstallLink() + " or go to the store page: " + storePage);
+
+            logger.info("Successfully returned game from genre " + genre + " " + randomGameFromGenre.getGameName() + " for profile: " + steamUser.getDisplayName());
+        } catch (Exception ex) {
+            throw new IllegalStateException(ex);
+        }
+    }
+
+
 
     /**
      * Send a message on the discord channel
      * @param message Message to send
      */
-    private void sendMessage(String message) {
-        RequestBuffer.request(() ->
-            channel.sendMessage(message));
+    private IMessage sendMessage(String message) {
+        RequestBuffer.RequestFuture<IMessage> request = RequestBuffer.request(() ->
+                channel.sendMessage(message));
+        return request.get();
     }
 }

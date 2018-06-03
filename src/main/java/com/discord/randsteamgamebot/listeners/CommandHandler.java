@@ -10,6 +10,7 @@ import sx.blah.discord.handle.obj.IUser;
 import java.util.*;
 
 import static com.discord.randsteamgamebot.utils.BotUtils.commandList;
+import static java.util.stream.Collectors.joining;
 
 public class CommandHandler {
 
@@ -23,7 +24,7 @@ public class CommandHandler {
         });
 
         commandMap.put("rgame", (event, args) -> {
-            if (args.size() < 1 || args.size() > 2) {
+            if (args.size() < 1) {
                 commandList(event.getChannel());
                 return ;
             }
@@ -43,8 +44,12 @@ public class CommandHandler {
             } else if (args.size() == 2 && args.get(1).equals("unplayed")) {
                 crawler.randUnplayedGame();
                 return ;
+            } else if (args.size() >= 2) {
+                //String genres = args.stream().skip(1).collect(joining(" "));
+                String genres = args.get(1);
+                crawler.randGameByGenre(genres);
+                return ;
             }
-
             crawler.randGame();
         });
 
@@ -82,6 +87,10 @@ public class CommandHandler {
         }
 
         if (!argArray[0].startsWith(BotUtils.BOT_PREFIX)) {
+            return ;
+        }
+
+        if (event.getAuthor().isBot()) {
             return ;
         }
 

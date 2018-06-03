@@ -22,9 +22,9 @@ public class BotMain {
         IDiscordClient discordBot = BotUtils.createClient(args[0]);
         try {
             EventDispatcher dispatcher = discordBot.getDispatcher();
+            discordBot.login();
             dispatcher.registerListener(new CommandHandler());
             dispatcher.registerListener(new GuildListener());
-            discordBot.login();
             CommandHandler.appOwner = discordBot.getApplicationOwner();
             SteamCrawler.steamApiToken = args[1];
         } catch (NullPointerException ex) {
