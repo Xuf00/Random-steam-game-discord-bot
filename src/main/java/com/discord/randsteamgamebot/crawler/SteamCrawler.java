@@ -9,6 +9,7 @@ package com.discord.randsteamgamebot.crawler;
 import com.discord.randsteamgamebot.domain.Game;
 import com.discord.randsteamgamebot.domain.SteamUser;
 import com.discord.randsteamgamebot.utils.BotUtils;
+import com.discord.randsteamgamebot.utils.GameGenres;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
@@ -219,6 +220,12 @@ public class SteamCrawler {
     public void randGameByGenre(String genre) {
         IMessage message = sendMessage("Retrieving information for " + steamUser.getDisplayName() + "...");
 
+        String genreVal = GameGenres.gameGenreMap.get(genre);
+        if (genreVal == null) {
+            message.edit(BotUtils.embedBuilderForGenre("!rgame <steamname> <genre>", "", ""));
+            return ;
+        }
+
         ArrayList<Game> allGames = Game.getAllGames(steamUser.getSteam64Id());
 
         if (Game.noGamesOwned(allGames)) {
@@ -232,18 +239,12 @@ public class SteamCrawler {
             HttpResponse<JsonNode> response = Unirest.get("https://steamspy.com/api.php?request=genre&genre=" + URLEncoder.encode(genre, "UTF-8")).asJson();
             JSONObject object = response.getBody().getObject();
 
-            allGames.forEach(game -> {
-                if (object.has(game.getGameID())) {
-                    System.out.println(game.getGameName() + " has the genre " + genre);
-                }
-            });
-
             List<Game> gamesByGenre = allGames.stream()
                     .filter(game -> object.has(game.getGameID()))
                     .collect(Collectors.toList());
 
             if (Game.noGamesOwned(gamesByGenre)) {
-                message.edit("You don't own any games in this genre or you entered it incorrectly.");
+                message.edit("You don't own any games from the " + genre + " genre.");
                 return ;
             }
 

@@ -19,11 +19,11 @@ public class CommandHandler {
 
 
     static {
-        commandMap.put("sbhelp", (event, args) -> {
+        commandMap.put("sbhelptest", (event, args) -> {
             commandList(event.getChannel());
         });
 
-        commandMap.put("rgame", (event, args) -> {
+        commandMap.put("rgametest", (event, args) -> {
             if (args.size() < 1) {
                 commandList(event.getChannel());
                 return ;
@@ -45,15 +45,14 @@ public class CommandHandler {
                 crawler.randUnplayedGame();
                 return ;
             } else if (args.size() >= 2) {
-                //String genres = args.stream().skip(1).collect(joining(" "));
-                String genres = args.get(1);
+                String genres = args.stream().skip(1).collect(joining(" ")).toLowerCase();
                 crawler.randGameByGenre(genres);
                 return ;
             }
             crawler.randGame();
         });
 
-        commandMap.put("mostplayed", (event, args) -> {
+        commandMap.put("mostplayedtest", (event, args) -> {
             String steamName = args.get(0);
 
             SteamUser steamUser = SteamUser.attemptToCreateSteamUser(steamName);
@@ -65,7 +64,7 @@ public class CommandHandler {
             crawler.mostPlayedGames();
         });
 
-        commandMap.put("leastplayed", (event, args) -> {
+        commandMap.put("leastplayedtest", (event, args) -> {
             String steamName = args.get(0);
 
             SteamUser steamUser = SteamUser.attemptToCreateSteamUser(steamName);
