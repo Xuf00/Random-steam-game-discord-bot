@@ -7,6 +7,7 @@ import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.api.internal.json.objects.EmbedObject;
 import sx.blah.discord.handle.impl.events.guild.GuildLeaveEvent;
+import sx.blah.discord.handle.impl.obj.ReactionEmoji;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.util.EmbedBuilder;
 import sx.blah.discord.util.RequestBuffer;
@@ -37,46 +38,19 @@ public class BotUtils {
         embedBuilder.withTitle(title);
 
         embedBuilder.appendField("Possible genres: \n",
-                "1.   " + GameGenres.gameGenreMap.get("early access") + "     " + "\n" +
-                        "2.  " + GameGenres.gameGenreMap.get("action") + "     " + "\n" +
-                        "3.  " + GameGenres.gameGenreMap.get("strategy") + "     " + "\n" +
-                        "4.  " + GameGenres.gameGenreMap.get("indie") + "     " + "\n" +
-                        "5.  " + GameGenres.gameGenreMap.get("rpg") + "     " + "\n" +
-                        "6.  " + GameGenres.gameGenreMap.get("racing") + "     " + "\n" +
-                        "7.  " + GameGenres.gameGenreMap.get("sports") + "     " + "\n" +
-                        "8.  " + GameGenres.gameGenreMap.get("left early access") + "     " + "\n" +
-                        "9.  " + GameGenres.gameGenreMap.get("free to play") + "     " + "\n" +
-                        "10." + GameGenres.gameGenreMap.get("adventure") + "     " + "\n" +
-                        "11. " + GameGenres.gameGenreMap.get("simulation") + "     " + "\n" +
-                        "12. " + GameGenres.gameGenreMap.get("casual") + "     " + "\n" +
-                        "13. " + GameGenres.gameGenreMap.get("massively multiplayer") + "     ", true);
-
-        /*embedBuilder.appendDescription("Possible genres are: " + "\n\n" +
-                "1.  " + GameGenres.gameGenreMap.get("early access") + "     " +
-                "2.  " + GameGenres.gameGenreMap.get("videos") + "     " +
-                "3.  " + GameGenres.gameGenreMap.get("action") + "     " +
-                "4.  " + GameGenres.gameGenreMap.get("strategy") + "     " +
-                "5.  " + GameGenres.gameGenreMap.get("indie") + "     " +
-                "6.  " + GameGenres.gameGenreMap.get("rpg") + "     " +
-                "7.  " + GameGenres.gameGenreMap.get("video production") + "     " +
-                "8.  " + GameGenres.gameGenreMap.get("racing") + "     " +
-                "9.  " + GameGenres.gameGenreMap.get("sports") + "     " +
-                "10. " + GameGenres.gameGenreMap.get("utilities") + "     " +
-                "11. " + GameGenres.gameGenreMap.get("design & illustration") + "     " +
-                "12. " + GameGenres.gameGenreMap.get("photo editing") + "     " +
-                "13. " + GameGenres.gameGenreMap.get("software training") + "     " +
-                "14. " + GameGenres.gameGenreMap.get("left early access") + "     " +
-                "15. " + GameGenres.gameGenreMap.get("free to play") + "     " +
-                "16. " + GameGenres.gameGenreMap.get("adventure") + "     " +
-                "17. " + GameGenres.gameGenreMap.get("simulation") + "     " +
-                "18. " + GameGenres.gameGenreMap.get("animation & modeling") + "     " +
-                "19. " + GameGenres.gameGenreMap.get("casual") + "     " +
-                "20. " + GameGenres.gameGenreMap.get("massively multiplayer") + "     " +
-                "21. " + GameGenres.gameGenreMap.get("audio production") + "     " +
-                "22. " + GameGenres.gameGenreMap.get("web publishing") + "     " +
-                "23. " + GameGenres.gameGenreMap.get("education") + "     " +
-                "24. " + GameGenres.gameGenreMap.get("accounting") + "     " +
-                "Looking into adding tag support.");*/
+                "1.     " + GameGenres.gameGenreMap.get("early access") + "     " + "\n" +
+                        "2.    " + GameGenres.gameGenreMap.get("action") + "     " + "\n" +
+                        "3.    " + GameGenres.gameGenreMap.get("strategy") + "     " + "\n" +
+                        "4.    " + GameGenres.gameGenreMap.get("indie") + "     " + "\n" +
+                        "5.    " + GameGenres.gameGenreMap.get("rpg") + "     " + "\n" +
+                        "6.    " + GameGenres.gameGenreMap.get("racing") + "     " + "\n" +
+                        "7.    " + GameGenres.gameGenreMap.get("sports") + "     " + "\n" +
+                        "8.    " + GameGenres.gameGenreMap.get("left early access") + "     " + "\n" +
+                        "9.    " + GameGenres.gameGenreMap.get("free to play") + "     " + "\n" +
+                        "10.  " + GameGenres.gameGenreMap.get("adventure") + "     " + "\n" +
+                        "11.   " + GameGenres.gameGenreMap.get("simulation") + "     " + "\n" +
+                        "12.  " + GameGenres.gameGenreMap.get("casual") + "     " + "\n" +
+                        "13.  " + GameGenres.gameGenreMap.get("massively multiplayer") + "     ", true);
 
         return embedBuilder.build();
     }
@@ -116,13 +90,16 @@ public class BotUtils {
         builder.withColor(41, 128, 185);
         builder.appendDescription("**Important: Your Steam Privacy settings will affect the outcome, so try to make everything public.**\n\n"
                                     + "Grabs all of a users games on Steam and selects a random game."
-                                    + " User can filter whether or not they want a random game they haven't played before. Can also see top played and least played games.");
-        builder.appendField("Commands   ", "!rgame [name/17 digit ID]"
-                + "           " + "\n!rgame [name/17 digit ID] [played/unplayed]"
-                + "           " + "\n!mostplayed [name/17 digit ID]"
-                + "           " + "\n!leastplayed [name/17 digit ID]"
-                + "           " + "\n\nGithub link: https://git.io/vxBc6", true);
-        builder.appendField("Example", "!rgame Xufoo\n!rgame 76561198054740594 played\n!mostplayed Xufoo\n!leastplayed Xufoo", true);
+                                    + " User can filter whether or not they want a random game they haven't played before. Can also see top played and least played games. **New feature to filter by genre.**");
+        builder.appendField("Commands   ", "!rgame <name/17 digit ID>"
+                                    + "           " + "\n!rgame <name/17 digit ID> <played/unplayed>"
+                                    + "           " + "\n!rgame <name/17 digit ID> <genre>"
+                                    + "           " + "\n!mostplayed <name/17 digit ID>"
+                                    + "           " + "\n!leastplayed <name/17 digit ID>"
+                                    + "           " + "\n\nGithub link: https://git.io/vxnPL", true);
+        builder.appendField("Example", "!rgame Xufoo\n!rgame 76561198054740594 played\n!rgame Xufoo action\n!mostplayed Xufoo\n!leastplayed Xufoo", true);
+
+
         RequestBuffer.request(() -> channel.sendMessage(builder.build()));
     }
 

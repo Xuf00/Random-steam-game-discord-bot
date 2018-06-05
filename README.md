@@ -9,9 +9,12 @@ Since Steam updated what users can decide to show on their profile, I have no po
 If you want to avoid any issues just ensure you have your privacy settings set to "Public".
 
 ## Current version ## 
-Works well, no more major tweaks unless Steam update their API to allow me to check a users privacy level.
+Few additions I would like to make in due time -
 
-Update: Plans to refactor how everything to do with how commands are handled as I'm not currently happy with the current approach.
+- Look into adding tag support for games, following up on the newly added genres
+- Refactor the way commands are currently handled as it's awful right now
+- Assessing the speeds of the bot and whether it needs paid hosting/whether I want to
+- Consider adding emojis for refreshing the random game and to delete posts, this will help combat spam by the bot
 
 ## Hosting ##
 
@@ -27,11 +30,11 @@ https://bots.discord.pw/bots/348109452043485185
 ```
 !sbhelp
 
-!rgame [Custom URL/17 digit ID]
+!rgame <Custom URL/17 digit ID>
 
-!rgame [Custom URL/17 digit ID] [played/unplayed]
+!rgame <Custom URL/17 digit ID> <played/unplayed>
 
-!mostplayed [Custom URL/17 digit ID]
+!mostplayed <Custom URL/17 digit ID>
 
-!leastplayed [Custom URL/17 digit ID]
+!leastplayed <Custom URL/17 digit ID>
 ```
