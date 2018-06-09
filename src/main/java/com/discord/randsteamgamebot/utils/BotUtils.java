@@ -6,17 +6,13 @@ import org.slf4j.LoggerFactory;
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.api.internal.json.objects.EmbedObject;
-import sx.blah.discord.handle.impl.events.guild.GuildLeaveEvent;
-import sx.blah.discord.handle.impl.obj.ReactionEmoji;
 import sx.blah.discord.handle.obj.IChannel;
+import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.util.EmbedBuilder;
 import sx.blah.discord.util.RequestBuffer;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-
-import static java.util.stream.Collectors.joining;
 
 public class BotUtils {
 
@@ -30,6 +26,7 @@ public class BotUtils {
                 .withRecommendedShardCount()
                 .setMaxReconnectAttempts(100000)
                 .build();
+
     }
 
     public static EmbedObject embedBuilderForGenre(String title, String desc, String errorMessage) {
@@ -102,9 +99,4 @@ public class BotUtils {
 
         RequestBuffer.request(() -> channel.sendMessage(builder.build()));
     }
-
-    public static void messageOwner(GuildLeaveEvent event) {
-
-    }
-
 }

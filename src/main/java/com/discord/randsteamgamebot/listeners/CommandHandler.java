@@ -8,6 +8,9 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedE
 import sx.blah.discord.handle.obj.IUser;
 
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import static com.discord.randsteamgamebot.utils.BotUtils.commandList;
 import static java.util.stream.Collectors.joining;
@@ -16,7 +19,7 @@ public class CommandHandler {
 
     private static Map<String, Command> commandMap = new HashMap<>();
     public static IUser appOwner = null;
-
+    private ExecutorService executorService = Executors.newFixedThreadPool(20);
 
     static {
         commandMap.put("sbhelp", (event, args) -> {
@@ -98,9 +101,11 @@ public class CommandHandler {
         List<String> argsList = new ArrayList<>(Arrays.asList(argArray));
         argsList.remove(0);
 
-        if (commandMap.containsKey(commandStr))
-            commandMap.get(commandStr).runCommand(event, argsList);
-
+        if (commandMap.containsKey(commandStr)) {
+            executorService.submit(() -> {
+                commandMap.get(commandStr).runCommand(event, argsList);
+            });
+        }
     }
 
 }

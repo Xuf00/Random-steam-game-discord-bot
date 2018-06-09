@@ -48,7 +48,7 @@ public class SteamCrawler {
      * Choose a random game for the user to play.
      */
     public void randGame() {
-        IMessage message = sendMessage("Retrieving information for " + steamUser.getDisplayName() + "...");;
+        IMessage message = sendMessage("Retrieving information for " + steamUser.getDisplayName() + "...");
 
         ArrayList<Game> allGames = Game.getAllGames(steamUser.getSteam64Id());
 
@@ -261,8 +261,6 @@ public class SteamCrawler {
             throw new IllegalStateException(ex);
         }
     }
-
-
 
     /**
      * Send a message on the discord channel
