@@ -11,6 +11,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.parser.Parser;
 
 import java.io.IOException;
+import java.util.List;
 
 import static com.discord.randsteamgamebot.crawler.SteamCrawler.steamApiToken;
 
@@ -20,6 +21,7 @@ public class SteamUser {
     private String steam64Id;
     private String profileURL;
     private int totalGames;
+    private List<Game> multiplayerGames;
 
     private SteamUser() {
 
@@ -51,6 +53,18 @@ public class SteamUser {
 
     public void setProfileURL(String profileURL) {
         this.profileURL = profileURL;
+    }
+
+    public String getProfileURL() {
+        return profileURL;
+    }
+
+    public List<Game> getMultiplayerGames() {
+        return multiplayerGames;
+    }
+
+    public void setMultiplayerGames(List<Game> multiplayerGames) {
+        this.multiplayerGames = multiplayerGames;
     }
 
     /**
@@ -114,7 +128,6 @@ public class SteamUser {
      */
     public static SteamUser attemptToCreateSteamUser(String profileID) {
         SteamUser steamUser = new SteamUser();
-
 
         if (profileID.matches("\\d+")) {
             String steamProfileURL = "http://steamcommunity.com/profiles/" + profileID;

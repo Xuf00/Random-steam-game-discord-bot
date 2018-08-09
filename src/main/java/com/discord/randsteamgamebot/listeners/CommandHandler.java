@@ -10,7 +10,7 @@ import sx.blah.discord.handle.obj.IUser;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 import static com.discord.randsteamgamebot.utils.BotUtils.commandList;
 import static java.util.stream.Collectors.joining;
@@ -78,6 +78,28 @@ public class CommandHandler {
             SteamCrawler crawler = new SteamCrawler(event.getChannel(), steamUser);
             crawler.leastPlayedGames();
         });
+
+        // Temporarily disabled as I'm not happy with it
+        /*commandMap.put("rshared", (event, args) -> {
+            if (args.size() > 4) {
+                event.getChannel().sendMessage("Command only supports up to five Steam users.");
+                return ;
+            }
+
+            List<SteamUser> steamUsers = args.stream().map(user -> {
+                return SteamUser.attemptToCreateSteamUser(user);
+            }).collect(Collectors.toList());
+
+            for (SteamUser user: steamUsers) {
+                if (user == null) {
+                    event.getChannel().sendMessage("A profile is either private or does not exist, ensure all profiles privacy settings are public.");
+                    return ;
+                }
+            }
+
+            SteamCrawler.randGameOwnedByMultipleUsers(steamUsers, event.getChannel());
+
+        });*/
     }
 
     @EventSubscriber

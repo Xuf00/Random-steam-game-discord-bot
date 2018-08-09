@@ -7,7 +7,6 @@ import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.api.internal.json.objects.EmbedObject;
 import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.util.EmbedBuilder;
 import sx.blah.discord.util.RequestBuffer;
 
@@ -42,12 +41,11 @@ public class BotUtils {
                         "5.    " + GameGenres.gameGenreMap.get("rpg") + "     " + "\n" +
                         "6.    " + GameGenres.gameGenreMap.get("racing") + "     " + "\n" +
                         "7.    " + GameGenres.gameGenreMap.get("sports") + "     " + "\n" +
-                        "8.    " + GameGenres.gameGenreMap.get("left early access") + "     " + "\n" +
-                        "9.    " + GameGenres.gameGenreMap.get("free to play") + "     " + "\n" +
-                        "10.  " + GameGenres.gameGenreMap.get("adventure") + "     " + "\n" +
-                        "11.   " + GameGenres.gameGenreMap.get("simulation") + "     " + "\n" +
-                        "12.  " + GameGenres.gameGenreMap.get("casual") + "     " + "\n" +
-                        "13.  " + GameGenres.gameGenreMap.get("massively multiplayer") + "     ", true);
+                        "8.    " + GameGenres.gameGenreMap.get("free") + "     " + "\n" +
+                        "9.  " + GameGenres.gameGenreMap.get("adventure") + "     " + "\n" +
+                        "10.   " + GameGenres.gameGenreMap.get("simulation") + "     " + "\n" +
+                        "11.  " + GameGenres.gameGenreMap.get("casual") + "     " + "\n" +
+                        "12.  " + GameGenres.gameGenreMap.get("multiplayer") + "     ", true);
 
         return embedBuilder.build();
     }

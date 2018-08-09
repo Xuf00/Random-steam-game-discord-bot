@@ -7,6 +7,7 @@ import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -114,20 +115,16 @@ public class Game {
      * @param steam64Id The Steam 64 bit ID of the user
      * @return All of the users Steam games
      */
-    public static ArrayList<Game> getAllGames(String steam64Id) {
-        try {
-            HttpResponse<JsonNode> response = Unirest.get("http://api.steampowered.com/IPlayerService/GetOwnedGames/v1/" +
-                    "?key=" + steamApiToken +
-                    "&include_appinfo=1" +
-                    "&include_played_free_games=1" +
-                    "&steamid=" + steam64Id +
-                    "&format=json")
-                    .asJson();
-            ArrayList<Game> allUsersSteamGames = parseJSON(response);
-            return allUsersSteamGames;
-        } catch (UnirestException ex) {
-            throw new IllegalStateException(ex);
-        }
+    public static ArrayList<Game> getAllGames(String steam64Id) throws UnirestException {
+        HttpResponse<JsonNode> response = Unirest.get("http://api.steampowered.com/IPlayerService/GetOwnedGames/v1/" +
+                                          "?key=" + steamApiToken +
+                                          "&include_appinfo=1" +
+                                          "&include_played_free_games=1" +
+                                          "&steamid=" + steam64Id +
+                                          "&format=json")
+                                          .asJson();
+    ArrayList<Game> allUsersSteamGames = parseJSON(response);
+    return allUsersSteamGames;
     }
 
     /**
@@ -186,5 +183,52 @@ public class Game {
             return true;
         }
         return false;
+    }
+
+    /*@Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Game))
+            return false;
+        if (obj == this)
+            return true;
+
+        Game game = (Game) obj;
+        return new EqualsBuilder().
+
+                append(gameName, game.gameName).
+                append(gameID, game.gameID)
+                .isEquals();
+    }*/
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Game game = (Game) o;
+
+        if (playedOrNot != game.playedOrNot) return false;
+        if (gameName != null ? !gameName.equals(game.gameName) : game.gameName != null) return false;
+        if (gameID != null ? !gameID.equals(game.gameID) : game.gameID != null) return false;
+        if (minutesPlayed != null ? !minutesPlayed.equals(game.minutesPlayed) : game.minutesPlayed != null)
+            return false;
+        if (gamePlayedTime != null ? !gamePlayedTime.equals(game.gamePlayedTime) : game.gamePlayedTime != null)
+            return false;
+        if (installLink != null ? !installLink.equals(game.installLink) : game.installLink != null) return false;
+        if (storePage != null ? !storePage.equals(game.storePage) : game.storePage != null) return false;
+        return embedLink != null ? embedLink.equals(game.embedLink) : game.embedLink == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = gameName != null ? gameName.hashCode() : 0;
+        result = 31 * result + (playedOrNot ? 1 : 0);
+        result = 31 * result + (gameID != null ? gameID.hashCode() : 0);
+        result = 31 * result + (minutesPlayed != null ? minutesPlayed.hashCode() : 0);
+        result = 31 * result + (gamePlayedTime != null ? gamePlayedTime.hashCode() : 0);
+        result = 31 * result + (installLink != null ? installLink.hashCode() : 0);
+        result = 31 * result + (storePage != null ? storePage.hashCode() : 0);
+        result = 31 * result + (embedLink != null ? embedLink.hashCode() : 0);
+        return result;
     }
 }
