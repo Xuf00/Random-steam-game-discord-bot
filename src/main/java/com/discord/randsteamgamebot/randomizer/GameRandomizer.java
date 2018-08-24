@@ -1,4 +1,4 @@
-package com.discord.randsteamgamebot.crawler;
+package com.discord.randsteamgamebot.randomizer;
 
 /*
     This class is used to crawl the Steam page of a user
@@ -24,22 +24,21 @@ import sx.blah.discord.util.RequestBuffer;
 
 import java.net.URLEncoder;
 import java.util.*;
-import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 /**
  *
  * @author Jack
  */
-public class SteamCrawler {
+public class GameRandomizer {
 
-    private Logger logger = LoggerFactory.getLogger(SteamCrawler.class);
+    private Logger logger = LoggerFactory.getLogger(GameRandomizer.class);
 
     public static String steamApiToken;
     private IChannel channel;
     private SteamUser steamUser;
 
-    public SteamCrawler(IChannel channel, SteamUser steamUser) {
+    public GameRandomizer(IChannel channel, SteamUser steamUser) {
         this.channel = channel;
         this.steamUser = steamUser;
     }
@@ -66,7 +65,7 @@ public class SteamCrawler {
                     + "I'd recommend " + steamUser.getDisplayName() + " plays **" + randGame.getGameName() + "**.\n" +
                     "Install or play the game: " + randGame.getInstallLink() + " or go to the store page: " + storePage);
 
-            logger.info("Successfully returned played game " + randGame.getGameName() + " for profile: " + steamUser.getDisplayName());
+            logger.info("Successfully returned played game " + randGame.getGameName() + " for profile: " + steamUser.getSteam64Id());
 
             allGames = null;
         } catch (UnirestException ex) {
@@ -111,7 +110,7 @@ public class SteamCrawler {
                     + "**.\nThere is currently " + randPlayedGame.getGamePlayedTime() + " played on this game.\n"
                     + "Install or play the game: " + randPlayedGame.getInstallLink() + " or go to the store page: " + storePage);
 
-            logger.info("Successfully returned played game " + randPlayedGame.getGameName() + " for profile: " + steamUser.getDisplayName());
+            logger.info("Successfully returned played game " + randPlayedGame.getGameName() + " for profile: " + steamUser.getSteam64Id());
         } catch (UnirestException ex) {
             logger.info("Failed to retrieve a random played game for the user.");
             throw new IllegalStateException(ex);
@@ -148,14 +147,13 @@ public class SteamCrawler {
             float gamePlayedPercent = (unplayedGameVal * 100.0f) / steamUser.getTotalGames();
 
             Game randUnplayedGame = Game.chooseRandGame(unplayedGames);
-            String storePage = "http://store.steampowered.com/app/" + randUnplayedGame.getGameID();
 
             message.edit(steamUser.getDisplayName() + " hasn't played " + unplayedGameVal + " of their games out of "
                     + steamUser.getTotalGames() + " (" + gamePlayedPercent + "%)" + ".\n"
                     + "I recommend that " + steamUser.getDisplayName() + " plays **" + randUnplayedGame.getGameName() + "**.\n"
-                    + "Install or play the game: " + randUnplayedGame.getInstallLink() + " or go to the store page: " + storePage);
+                    + "Install or play the game: " + randUnplayedGame.getInstallLink() + " or go to the store page: " + randUnplayedGame.getStorePage());
 
-            logger.info("Successfully returned played game " + randUnplayedGame.getGameName() + " for profile: " + steamUser.getDisplayName());
+            logger.info("Successfully returned played game " + randUnplayedGame.getGameName() + " for profile: " + steamUser.getSteam64Id());
         } catch (UnirestException ex) {
             logger.info("Failed to retrieve a random game for the user to play.");
             throw new IllegalStateException(ex);
@@ -191,7 +189,7 @@ public class SteamCrawler {
             RequestBuffer.request(() ->
                     message.edit(embedBuilder.build()));
 
-            logger.info("Successfully returned most played games for profile: " + steamUser.getDisplayName());
+            logger.info("Successfully returned most played games for profile: " + steamUser.getSteam64Id());
         } catch (UnirestException ex) {
             logger.info("Failed to retrieve the users most played games.");
             throw new IllegalStateException(ex);
@@ -235,7 +233,7 @@ public class SteamCrawler {
                 message.edit(embedBuilder.build());
             });
 
-            logger.info("Successfully returned least played games for profile: " + steamUser.getDisplayName());
+            logger.info("Successfully returned least played games for profile: " + steamUser.getSteam64Id());
         } catch (UnirestException ex) {
             logger.info("Failed to retrieve the users least played games.");
             throw new IllegalStateException(ex);
@@ -291,75 +289,18 @@ public class SteamCrawler {
                     + "I'd recommend " + steamUser.getDisplayName() + " plays **" + randomGameFromGenre.getGameName() + "**.\n" +
                     "Install or play the game: " + randomGameFromGenre.getInstallLink() + " or go to the store page: " + storePage);
 
-            logger.info("Successfully returned game from genre " + genre + " " + randomGameFromGenre.getGameName() + " for profile: " + steamUser.getDisplayName());
+            logger.info("Successfully returned game from genre " + genre + " " + randomGameFromGenre.getGameName() + " for profile: " + steamUser.getSteam64Id());
         } catch (Exception ex) {
             logger.error("Exception thrown in getting a random game by genre.");
             throw new IllegalStateException(ex);
         }
     }
 
-    /*public static void randGameOwnedByMultipleUsers(List<SteamUser> steamUsers, IChannel channel) {
-        IMessage message = sendMessage("Retrieving information for users...", channel);
-
-        try {
-            HttpResponse<JsonNode> response = Unirest.get("https://steamspy.com/api.php?request=genre&genre=" + URLEncoder.encode("multiplayer", "UTF-8")).asJson();
-            JSONObject object = response.getBody().getObject();
-
-            if (object.length() == 0) {
-                message.edit("The API is currently experiencing issues, please try this command again later.");
-                return ;
-            }
-
-            List<Set<Game>> usersGames = steamUsers.stream().map(user -> {
-                try {
-                    ArrayList<Game> allGames = Game.getAllGames(user.getSteam64Id());
-
-                    Set<Game> gamesByGenre = allGames.stream()
-                            .filter(game -> object.has(game.getGameID()))
-                            .collect(Collectors.toSet());
-
-                    return gamesByGenre;
-                } catch (UnirestException ex) {
-                    throw new IllegalStateException(ex);
-                }
-            }).collect(Collectors.toList());
-
-            List<Game> commonGames = new ArrayList<>(usersGames.get(0));
-            usersGames.stream().skip(1).forEach(games -> {
-                commonGames.retainAll(games);
-            });
-
-            if (commonGames.size() == 0) {
-                message.edit("These users don't have any multiplayer games in common.");
-                return ;
-            }
-
-            Game randomGame = Game.chooseRandGame(commonGames);
-
-            String storePage = "http://store.steampowered.com/app/" + randomGame.getGameID();
-
-            message.edit("There are **" + commonGames.size() + "** multiplayer game(s) in common between these users.\n"
-                    + "I'd recommend you all play **" + randomGame.getGameName() + "**.\n" +
-                    "Install or play the game: " + randomGame.getInstallLink() + " or go to the store page: " + storePage);
-
-            //logger.info()
-        } catch (Exception ex) {
-            //logger.error("Exception thrown in getting a random game owned between multiple users.");
-            throw new IllegalStateException(ex);
-        }
-    }*/
-
     /**
      * Send a message on the discord channel
      * @param message Message to send
      */
     private IMessage sendMessage(String message) {
-        RequestBuffer.RequestFuture<IMessage> request = RequestBuffer.request(() ->
-                channel.sendMessage(message));
-        return request.get();
-    }
-
-    private static IMessage sendMessage(String message, IChannel channel) {
         RequestBuffer.RequestFuture<IMessage> request = RequestBuffer.request(() ->
                 channel.sendMessage(message));
         return request.get();

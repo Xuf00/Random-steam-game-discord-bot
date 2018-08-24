@@ -9,19 +9,22 @@ import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.parser.Parser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
 
-import static com.discord.randsteamgamebot.crawler.SteamCrawler.steamApiToken;
+import static com.discord.randsteamgamebot.randomizer.GameRandomizer.steamApiToken;
 
 public class SteamUser {
+
+    private Logger logger = LoggerFactory.getLogger(SteamUser.class);
 
     private String displayName;
     private String steam64Id;
     private String profileURL;
     private int totalGames;
-    private List<Game> multiplayerGames;
 
     private SteamUser() {
 
@@ -57,14 +60,6 @@ public class SteamUser {
 
     public String getProfileURL() {
         return profileURL;
-    }
-
-    public List<Game> getMultiplayerGames() {
-        return multiplayerGames;
-    }
-
-    public void setMultiplayerGames(List<Game> multiplayerGames) {
-        this.multiplayerGames = multiplayerGames;
     }
 
     /**

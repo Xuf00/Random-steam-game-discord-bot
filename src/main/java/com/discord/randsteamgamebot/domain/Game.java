@@ -7,7 +7,6 @@ import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
-import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -17,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import static com.discord.randsteamgamebot.crawler.SteamCrawler.steamApiToken;
+import static com.discord.randsteamgamebot.randomizer.GameRandomizer.steamApiToken;
 
 /**
  *

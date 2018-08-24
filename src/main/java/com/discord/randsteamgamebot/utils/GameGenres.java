@@ -8,7 +8,7 @@ import java.util.Map;
  * This class holds information about the currently available genres on Steam
  */
 public final class GameGenres {
-    public static final Map<String, String> gameGenreMap = Collections.unmodifiableMap(
+    public static final Map<String, String> gameGenreMap = new HashMap<>(
             new HashMap<String, String>() {{
                 put("early access", "Early access");
                 put("videos", "Videos");
