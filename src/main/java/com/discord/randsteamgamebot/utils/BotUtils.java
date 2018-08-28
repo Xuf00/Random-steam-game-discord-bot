@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.api.internal.json.objects.EmbedObject;
+import sx.blah.discord.handle.impl.obj.ReactionEmoji;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.util.EmbedBuilder;
 import sx.blah.discord.util.RequestBuffer;
@@ -18,6 +19,7 @@ public class BotUtils {
     private static Logger logger = LoggerFactory.getLogger(BotUtils.class);
 
     public final static String BOT_PREFIX = "!";
+    public static final ReactionEmoji DELETE_EMOJI = ReactionEmoji.of("❌");
 
     public static IDiscordClient createClient(String token) {
         return new ClientBuilder()
@@ -95,6 +97,6 @@ public class BotUtils {
         builder.appendField("Example", "!rgame Xufoo\n!rgame 76561198054740594 played\n!rgame Xufoo action\n!mostplayed Xufoo\n!leastplayed Xufoo", true);
 
 
-        RequestBuffer.request(() -> channel.sendMessage(builder.build()));
+        RequestBuffer.request(() -> channel.sendMessage(builder.build()).addReaction(DELETE_EMOJI));
     }
 }

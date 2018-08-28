@@ -23,8 +23,12 @@ import sx.blah.discord.util.EmbedBuilder;
 import sx.blah.discord.util.RequestBuffer;
 
 import java.net.URLEncoder;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.discord.randsteamgamebot.utils.BotUtils.DELETE_EMOJI;
 
 /**
  *
@@ -54,6 +58,7 @@ public class GameRandomizer {
 
             if (Game.noGamesOwned(allGames)) {
                 message.edit("You either don't own any games or your privacy settings are affecting the result.");
+                message.addReaction(DELETE_EMOJI);
                 return ;
             }
 
@@ -64,10 +69,9 @@ public class GameRandomizer {
             message.edit(steamUser.getDisplayName() + " owns " + allGames.size() + " games.\n"
                     + "I'd recommend " + steamUser.getDisplayName() + " plays **" + randGame.getGameName() + "**.\n" +
                     "Install or play the game: " + randGame.getInstallLink() + " or go to the store page: " + storePage);
+            message.addReaction(DELETE_EMOJI);
 
             logger.info("Successfully returned played game " + randGame.getGameName() + " for profile: " + steamUser.getSteam64Id());
-
-            allGames = null;
         } catch (UnirestException ex) {
             logger.info("Failed to retrieve a random game for the user");
             throw new IllegalStateException(ex);
@@ -81,7 +85,8 @@ public class GameRandomizer {
      * the percentage of games they have played
      */
     public void randPlayedGame() {
-        IMessage message = sendMessage("Retrieving information for " + steamUser.getDisplayName() + "...");;
+        IMessage message = sendMessage("Retrieving information for " + steamUser.getDisplayName() + "...");
+        message.addReaction(DELETE_EMOJI);
 
         try {
             ArrayList<Game> allGames = Game.getAllGames(steamUser.getSteam64Id());
@@ -125,7 +130,8 @@ public class GameRandomizer {
      * the percentage of games they have not yet played
      */
     public void randUnplayedGame() {
-        IMessage message = sendMessage("Retrieving information for " + steamUser.getDisplayName() + "...");;
+        IMessage message = sendMessage("Retrieving information for " + steamUser.getDisplayName() + "...");
+        message.addReaction(DELETE_EMOJI);
 
         try {
             ArrayList<Game> allGames = Game.getAllGames(steamUser.getSteam64Id());
@@ -165,7 +171,8 @@ public class GameRandomizer {
      * nicely formatted and then output to them
      */
     public void mostPlayedGames() {
-        IMessage message = sendMessage("Retrieving information for " + steamUser.getDisplayName() + "...");;
+        IMessage message = sendMessage("Retrieving information for " + steamUser.getDisplayName() + "...");
+        message.addReaction(DELETE_EMOJI);
 
         try {
             ArrayList<Game> allGames = Game.getAllGames(steamUser.getSteam64Id());
@@ -202,6 +209,7 @@ public class GameRandomizer {
      */
     public void leastPlayedGames() {
         IMessage message = sendMessage("Retrieving information for " + steamUser.getDisplayName() + "...");
+        message.addReaction(DELETE_EMOJI);
 
         try {
             ArrayList<Game> allGames = Game.getAllGames(steamUser.getSteam64Id());
@@ -247,6 +255,8 @@ public class GameRandomizer {
      */
     public void randGameByGenre(String genre) {
         IMessage message = sendMessage("Retrieving information for " + steamUser.getDisplayName() + "...");
+        message.addReaction(DELETE_EMOJI);
+
 
         String genreVal = GameGenres.gameGenreMap.get(genre);
         if (genreVal == null) {
