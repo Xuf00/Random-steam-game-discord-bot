@@ -18,7 +18,7 @@ public class CommandHandler {
 
     private static Map<String, Command> commandMap = new HashMap<>();
     public static IUser appOwner = null;
-    private ExecutorService executorService = Executors.newCachedThreadPool();
+    private ExecutorService executorService = Executors.newFixedThreadPool(8);
 
     static {
         commandMap.put("sbhelp", (event, args) -> {

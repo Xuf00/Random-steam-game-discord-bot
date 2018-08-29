@@ -52,13 +52,13 @@ public class GameRandomizer {
      */
     public void randGame() {
         IMessage message = sendMessage("Retrieving information for " + steamUser.getDisplayName() + "...");
+        message.addReaction(DELETE_EMOJI);
 
         try {
             ArrayList<Game> allGames = Game.getAllGames(steamUser.getSteam64Id());
 
             if (Game.noGamesOwned(allGames)) {
                 message.edit("You either don't own any games or your privacy settings are affecting the result.");
-                message.addReaction(DELETE_EMOJI);
                 return ;
             }
 
@@ -69,14 +69,12 @@ public class GameRandomizer {
             message.edit(steamUser.getDisplayName() + " owns " + allGames.size() + " games.\n"
                     + "I'd recommend " + steamUser.getDisplayName() + " plays **" + randGame.getGameName() + "**.\n" +
                     "Install or play the game: " + randGame.getInstallLink() + " or go to the store page: " + storePage);
-            message.addReaction(DELETE_EMOJI);
 
             logger.info("Successfully returned played game " + randGame.getGameName() + " for profile: " + steamUser.getSteam64Id());
         } catch (UnirestException ex) {
             logger.info("Failed to retrieve a random game for the user");
             throw new IllegalStateException(ex);
         }
-
     }
 
     /**
