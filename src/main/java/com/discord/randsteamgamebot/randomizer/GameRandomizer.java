@@ -17,6 +17,7 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sx.blah.discord.api.internal.json.objects.EmbedObject;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.util.EmbedBuilder;
@@ -29,6 +30,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.discord.randsteamgamebot.utils.BotUtils.DELETE_EMOJI;
+import static com.discord.randsteamgamebot.utils.BotUtils.editMessage;
 
 /**
  *
@@ -36,29 +38,30 @@ import static com.discord.randsteamgamebot.utils.BotUtils.DELETE_EMOJI;
  */
 public class GameRandomizer {
 
+    public static final String NO_GAMES_ERROR = "This user either doesn't own any games or their Steam privacy settings are affecting the result.";
     private Logger logger = LoggerFactory.getLogger(GameRandomizer.class);
 
-    public static String steamApiToken;
+    public static String STEAM_API_KEY;
     private IChannel channel;
+    private IMessage message;
     private SteamUser steamUser;
 
     public GameRandomizer(IChannel channel, SteamUser steamUser) {
         this.channel = channel;
         this.steamUser = steamUser;
+        message = BotUtils.sendInitialMessage(channel, steamUser);
+        message.addReaction(DELETE_EMOJI);
     }
 
     /**
      * Choose a random game for the user to play.
      */
     public void randGame() {
-        IMessage message = sendMessage("Retrieving information for " + steamUser.getDisplayName() + "...");
-        message.addReaction(DELETE_EMOJI);
-
         try {
             ArrayList<Game> allGames = Game.getAllGames(steamUser.getSteam64Id());
 
             if (Game.noGamesOwned(allGames)) {
-                message.edit("You either don't own any games or your privacy settings are affecting the result.");
+                BotUtils.editMessage(message, steamUser, NO_GAMES_ERROR);
                 return ;
             }
 
@@ -66,12 +69,13 @@ public class GameRandomizer {
             Game randGame = Game.chooseRandGame(allGames);
             String storePage = "http://store.steampowered.com/app/" + randGame.getGameID();
 
-            message.edit(steamUser.getDisplayName() + " owns " + allGames.size() + " games.\n"
+            editMessage(message, steamUser, steamUser.getDisplayName() + " owns " + allGames.size() + " games.\n"
                     + "I'd recommend " + steamUser.getDisplayName() + " plays **" + randGame.getGameName() + "**.\n" +
                     "Install or play the game: " + randGame.getInstallLink() + " or go to the store page: " + storePage);
 
-            logger.info("Successfully returned played game " + randGame.getGameName() + " for profile: " + steamUser.getSteam64Id());
-        } catch (UnirestException ex) {
+            logger.info("Successfully returned played game " + randGame.getGameName() + " for profile: " + steamUser.getSteam64Id()
+                    + ", user owns " + steamUser.getTotalGames() + " games.");
+        } catch (Exception ex) {
             logger.info("Failed to retrieve a random game for the user");
             throw new IllegalStateException(ex);
         }
@@ -83,14 +87,11 @@ public class GameRandomizer {
      * the percentage of games they have played
      */
     public void randPlayedGame() {
-        IMessage message = sendMessage("Retrieving information for " + steamUser.getDisplayName() + "...");
-        message.addReaction(DELETE_EMOJI);
-
         try {
             ArrayList<Game> allGames = Game.getAllGames(steamUser.getSteam64Id());
 
             if (Game.noGamesOwned(allGames)) {
-                message.edit("You either don't own any games or your privacy settings are affecting the result.");
+                BotUtils.editMessage(message, steamUser, NO_GAMES_ERROR);
                 return ;
             }
 
@@ -98,7 +99,7 @@ public class GameRandomizer {
             ArrayList<Game> playedGames = Game.filterGames(allGames, true);
 
             if (Game.noGamesOwned(playedGames)) {
-                message.edit("You haven't played any games yet or your privacy setting is hiding your game play time.");
+                BotUtils.editMessage(message, steamUser, "This user hasn't played any games yet or their privacy setting is hiding the game play time.");
             }
 
             int playedGameVal = playedGames.size();
@@ -107,14 +108,15 @@ public class GameRandomizer {
             Game randPlayedGame = Game.chooseRandGame(playedGames);
             String storePage = "http://store.steampowered.com/app/" + randPlayedGame.getGameID();
 
-            message.edit(steamUser.getDisplayName() + " has played " + playedGameVal + " of their games out of "
+            BotUtils.editMessage(message, steamUser, steamUser.getDisplayName() + " has played " + playedGameVal + " of their games out of "
                     + steamUser.getTotalGames() + " (" + gamePlayedPercent + "%)" + ".\n"
                     + "I recommend that " + steamUser.getDisplayName() + " plays **" + randPlayedGame.getGameName()
                     + "**.\nThere is currently " + randPlayedGame.getGamePlayedTime() + " played on this game.\n"
                     + "Install or play the game: " + randPlayedGame.getInstallLink() + " or go to the store page: " + storePage);
 
-            logger.info("Successfully returned played game " + randPlayedGame.getGameName() + " for profile: " + steamUser.getSteam64Id());
-        } catch (UnirestException ex) {
+            logger.info("Successfully returned played game " + randPlayedGame.getGameName() + " for profile: " + steamUser.getSteam64Id()
+                    + ", user owns " + steamUser.getTotalGames() + " games.");
+        } catch (Exception ex) {
             logger.info("Failed to retrieve a random played game for the user.");
             throw new IllegalStateException(ex);
         }
@@ -128,14 +130,11 @@ public class GameRandomizer {
      * the percentage of games they have not yet played
      */
     public void randUnplayedGame() {
-        IMessage message = sendMessage("Retrieving information for " + steamUser.getDisplayName() + "...");
-        message.addReaction(DELETE_EMOJI);
-
         try {
             ArrayList<Game> allGames = Game.getAllGames(steamUser.getSteam64Id());
 
             if (Game.noGamesOwned(allGames)) {
-                message.edit("You either don't own any games or your privacy settings are affecting the result.");
+                BotUtils.editMessage(message, steamUser, NO_GAMES_ERROR);
                 return ;
             }
 
@@ -143,7 +142,7 @@ public class GameRandomizer {
             ArrayList<Game> unplayedGames = Game.filterGames(allGames, false);
 
             if (Game.noGamesOwned(unplayedGames)) {
-                message.edit("You've played all of your games already.");
+                BotUtils.editMessage(message, steamUser, "All of the games on this account have already been played.");
                 return ;
             }
 
@@ -152,14 +151,15 @@ public class GameRandomizer {
 
             Game randUnplayedGame = Game.chooseRandGame(unplayedGames);
 
-            message.edit(steamUser.getDisplayName() + " hasn't played " + unplayedGameVal + " of their games out of "
+            BotUtils.editMessage(message, steamUser, steamUser.getDisplayName() + " hasn't played " + unplayedGameVal + " of their games out of "
                     + steamUser.getTotalGames() + " (" + gamePlayedPercent + "%)" + ".\n"
                     + "I recommend that " + steamUser.getDisplayName() + " plays **" + randUnplayedGame.getGameName() + "**.\n"
                     + "Install or play the game: " + randUnplayedGame.getInstallLink() + " or go to the store page: " + randUnplayedGame.getStorePage());
 
-            logger.info("Successfully returned played game " + randUnplayedGame.getGameName() + " for profile: " + steamUser.getSteam64Id());
-        } catch (UnirestException ex) {
-            logger.info("Failed to retrieve a random game for the user to play.");
+            logger.info("Successfully returned played game " + randUnplayedGame.getGameName() + " for profile: " + steamUser.getSteam64Id()
+                    + ", user owns " + steamUser.getTotalGames() + " games.");
+        } catch (Exception ex) {
+            logger.info("Failed to retrieve a random unplayed game for the user.");
             throw new IllegalStateException(ex);
         }
     }
@@ -169,14 +169,11 @@ public class GameRandomizer {
      * nicely formatted and then output to them
      */
     public void mostPlayedGames() {
-        IMessage message = sendMessage("Retrieving information for " + steamUser.getDisplayName() + "...");
-        message.addReaction(DELETE_EMOJI);
-
         try {
             ArrayList<Game> allGames = Game.getAllGames(steamUser.getSteam64Id());
 
             if (Game.noGamesOwned(allGames)) {
-                message.edit("You either don't own any games or your privacy settings are affecting the result.");
+                BotUtils.editMessage(message, steamUser, NO_GAMES_ERROR);
                 return ;
             }
 
@@ -184,17 +181,17 @@ public class GameRandomizer {
             ArrayList<Game> playedGames = Game.filterGames(allGames, true);
 
             if (playedGames.size() < 5) {
-                message.edit("You need to have played five games to use this command.");
+                BotUtils.editMessage(message, steamUser, "This user needs to have played at least five games to use this command.");
                 return ;
             }
 
             EmbedBuilder embedBuilder = BotUtils.createEmbedBuilder(playedGames, "Most played games for " + steamUser.getDisplayName() + "\n",
                     "The top five most played games on Steam for this user.", true);
 
-            RequestBuffer.request(() ->
-                    message.edit(embedBuilder.build()));
+            BotUtils.editMessage(message, steamUser, embedBuilder.build());
 
-            logger.info("Successfully returned most played games for profile: " + steamUser.getSteam64Id());
+            logger.info("Successfully returned most played games for profile: " + steamUser.getSteam64Id()
+                    + ", user owns " + steamUser.getTotalGames() + " games.");
         } catch (UnirestException ex) {
             logger.info("Failed to retrieve the users most played games.");
             throw new IllegalStateException(ex);
@@ -206,14 +203,11 @@ public class GameRandomizer {
      * some time logged against them
      */
     public void leastPlayedGames() {
-        IMessage message = sendMessage("Retrieving information for " + steamUser.getDisplayName() + "...");
-        message.addReaction(DELETE_EMOJI);
-
         try {
             ArrayList<Game> allGames = Game.getAllGames(steamUser.getSteam64Id());
 
             if (Game.noGamesOwned(allGames)) {
-                message.edit("You either don't own any games or your privacy settings are affecting the result.");
+                BotUtils.editMessage(message, steamUser, NO_GAMES_ERROR);
                 return ;
             }
 
@@ -221,11 +215,9 @@ public class GameRandomizer {
             ArrayList<Game> playedGames = Game.filterGames(allGames, true);
 
             if (playedGames.size() < 5) {
-                message.edit("You need to have played five games to use this command.");
+                BotUtils.editMessage(message, steamUser, "This user needs to have played at least five games to use this command.");
                 return ;
             }
-
-            playedGames.sort(Comparator.comparingInt(Game::getMinutesPlayed));
 
             EmbedBuilder builder = new EmbedBuilder();
             builder.withColor(41, 128, 185);
@@ -235,11 +227,10 @@ public class GameRandomizer {
             EmbedBuilder embedBuilder = BotUtils.createEmbedBuilder(playedGames, "Least played games for " + steamUser.getDisplayName() + "\n",
                     "The top five least played games on Steam for this user. (With playtime)", false);
 
-            RequestBuffer.request(() -> {
-                message.edit(embedBuilder.build());
-            });
+            BotUtils.editMessage(message, steamUser, embedBuilder.build());
 
-            logger.info("Successfully returned least played games for profile: " + steamUser.getSteam64Id());
+            logger.info("Successfully returned least played games for profile: " + steamUser.getSteam64Id()
+                    + ", user owns " + steamUser.getTotalGames() + " games.");
         } catch (UnirestException ex) {
             logger.info("Failed to retrieve the users least played games.");
             throw new IllegalStateException(ex);
@@ -252,21 +243,17 @@ public class GameRandomizer {
      * @param genre The genre to search
      */
     public void randGameByGenre(String genre) {
-        IMessage message = sendMessage("Retrieving information for " + steamUser.getDisplayName() + "...");
-        message.addReaction(DELETE_EMOJI);
-
-
-        String genreVal = GameGenres.gameGenreMap.get(genre);
-        if (genreVal == null) {
-            message.edit(BotUtils.embedBuilderForGenre("!rgame <steamname> <genre>", "", ""));
-            return ;
-        }
-
         try {
+            String genreVal = GameGenres.gameGenreMap.get(genre);
+            if (genreVal == null) {
+                BotUtils.editMessage(message, steamUser, BotUtils.embedBuilderForGenre("!rgame <steamname> <genre>", "", ""));
+                return ;
+            }
+
             ArrayList<Game> allGames = Game.getAllGames(steamUser.getSteam64Id());
 
             if (Game.noGamesOwned(allGames)) {
-                message.edit("You either don't own any games or your privacy settings are affecting the result.");
+                BotUtils.editMessage(message, steamUser, NO_GAMES_ERROR);
                 return ;
             }
 
@@ -276,7 +263,7 @@ public class GameRandomizer {
             JSONObject object = response.getBody().getObject();
 
             if (object.length() == 0) {
-                message.edit("The API is currently experiencing issues, please try this command again later.");
+                BotUtils.editMessage(message, steamUser, "The SteamSpy API is currently experiencing issues, please try this command again later.");
                 return ;
             }
 
@@ -285,7 +272,7 @@ public class GameRandomizer {
                     .collect(Collectors.toList());
 
             if (Game.noGamesOwned(gamesByGenre)) {
-                message.edit("You don't own any games from the " + genre + " genre.");
+                BotUtils.editMessage(message, steamUser, "You don't own any games from the " + genre + " genre.");
                 return ;
             }
 
@@ -293,24 +280,15 @@ public class GameRandomizer {
 
             String storePage = "http://store.steampowered.com/app/" + randomGameFromGenre.getGameID();
 
-            message.edit(steamUser.getDisplayName() + " owns " + gamesByGenre.size() + " games in the **" + genreVal + "** genre.\n"
+            BotUtils.editMessage(message, steamUser, steamUser.getDisplayName() + " owns " + gamesByGenre.size() + " games in the **" + genreVal + "** genre.\n"
                     + "I'd recommend " + steamUser.getDisplayName() + " plays **" + randomGameFromGenre.getGameName() + "**.\n" +
                     "Install or play the game: " + randomGameFromGenre.getInstallLink() + " or go to the store page: " + storePage);
 
-            logger.info("Successfully returned game from genre " + genre + " " + randomGameFromGenre.getGameName() + " for profile: " + steamUser.getSteam64Id());
+            logger.info("Successfully returned game from genre " + genre + " " + randomGameFromGenre.getGameName() + " for profile: " + steamUser.getSteam64Id()
+                    + ", user owns " + steamUser.getTotalGames() + " games.");
         } catch (Exception ex) {
             logger.error("Exception thrown in getting a random game by genre.");
             throw new IllegalStateException(ex);
         }
-    }
-
-    /**
-     * Send a message on the discord channel
-     * @param message Message to send
-     */
-    private IMessage sendMessage(String message) {
-        RequestBuffer.RequestFuture<IMessage> request = RequestBuffer.request(() ->
-                channel.sendMessage(message));
-        return request.get();
     }
 }

@@ -11,11 +11,11 @@ import org.jsoup.nodes.Document;
 import org.jsoup.parser.Parser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sx.blah.discord.handle.obj.IUser;
 
 import java.io.IOException;
-import java.util.List;
 
-import static com.discord.randsteamgamebot.randomizer.GameRandomizer.steamApiToken;
+import static com.discord.randsteamgamebot.randomizer.GameRandomizer.STEAM_API_KEY;
 
 public class SteamUser {
 
@@ -25,6 +25,7 @@ public class SteamUser {
     private String steam64Id;
     private String profileURL;
     private int totalGames;
+    private IUser discordRequester;
 
     private SteamUser() {
 
@@ -62,13 +63,21 @@ public class SteamUser {
         return profileURL;
     }
 
+    public IUser getDiscordRequester() {
+        return discordRequester;
+    }
+
+    public void setDiscordRequester(IUser discordRequester) {
+        this.discordRequester = discordRequester;
+    }
+
     /**
      * Check if the users profile is private, "timecreated" only returns if it's not private
      * @return Whether or not the profile is private
      */
     private boolean profileIsPrivate() {
         try {
-            HttpResponse<JsonNode> response = Unirest.get("http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=" + steamApiToken +
+            HttpResponse<JsonNode> response = Unirest.get("http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=" + STEAM_API_KEY +
                     "&steamids=" + steam64Id).asJson();
 
             JSONObject userInfo = response.getBody().getObject().getJSONObject("response");

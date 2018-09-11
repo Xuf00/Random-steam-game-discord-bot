@@ -12,12 +12,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static com.discord.randsteamgamebot.utils.BotUtils.commandList;
+import static com.discord.randsteamgamebot.utils.BotUtils.editMessage;
 import static java.util.stream.Collectors.joining;
 
 public class CommandHandler {
 
     private static Map<String, Command> commandMap = new HashMap<>();
-    public static IUser appOwner = null;
     private ExecutorService executorService = Executors.newFixedThreadPool(8);
 
     static {
@@ -37,6 +37,7 @@ public class CommandHandler {
                 event.getChannel().sendMessage("This profile is either private or does not exist, set your privacy to public and try again.");
                 return ;
             }
+            steamUser.setDiscordRequester(event.getAuthor());
 
             GameRandomizer crawler = new GameRandomizer(event.getChannel(), steamUser);
 
@@ -62,6 +63,7 @@ public class CommandHandler {
                 event.getChannel().sendMessage("This profile is either private or does not exist, set your privacy to public and try again.");
                 return ;
             }
+            steamUser.setDiscordRequester(event.getAuthor());
             GameRandomizer crawler = new GameRandomizer(event.getChannel(), steamUser);
             crawler.mostPlayedGames();
         });
@@ -74,6 +76,7 @@ public class CommandHandler {
                 event.getChannel().sendMessage("This profile is either private or does not exist, set your privacy to public and try again.");
                 return ;
             }
+            steamUser.setDiscordRequester(event.getAuthor());
             GameRandomizer crawler = new GameRandomizer(event.getChannel(), steamUser);
             crawler.leastPlayedGames();
         });

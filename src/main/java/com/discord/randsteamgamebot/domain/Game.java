@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import static com.discord.randsteamgamebot.randomizer.GameRandomizer.steamApiToken;
+import static com.discord.randsteamgamebot.randomizer.GameRandomizer.STEAM_API_KEY;
 
 /**
  *
@@ -116,7 +116,7 @@ public class Game {
      */
     public static ArrayList<Game> getAllGames(String steam64Id) throws UnirestException {
         HttpResponse<JsonNode> response = Unirest.get("http://api.steampowered.com/IPlayerService/GetOwnedGames/v1/" +
-                                          "?key=" + steamApiToken +
+                                          "?key=" + STEAM_API_KEY +
                                           "&include_appinfo=1" +
                                           "&include_played_free_games=1" +
                                           "&steamid=" + steam64Id +

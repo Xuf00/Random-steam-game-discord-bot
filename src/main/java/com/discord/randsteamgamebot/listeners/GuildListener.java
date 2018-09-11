@@ -22,12 +22,25 @@ public class GuildListener {
 
     @EventSubscriber
     public void onEmojiReact(ReactionEvent event) {
-        IDiscordClient client = event.getClient();
-        IUser botUser = client.getOurUser();
-        IUser messageOwner = event.getMessage().getAuthor();
-        if (!event.getUser().equals(botUser) && event.getReaction().getEmoji().equals(DELETE_EMOJI)
-                && messageOwner.equals(botUser)) {
-            event.getMessage().delete();
+        try {
+            IDiscordClient client = event.getClient();
+            IUser self = client.getOurUser();
+            IUser reactor = event.getUser();
+
+            if (event.getUser().equals(self)) {
+                return ;
+            }
+
+            boolean reactionIsDelete = event.getReaction().getEmoji().equals(DELETE_EMOJI);
+            if (reactionIsDelete && event.getMessage().getContent().equals("") && event.getMessage().getAuthor().equals(self)) {
+                event.getMessage().delete();
+            }
+            else if (reactionIsDelete && reactor.equals(event.getMessage().getMentions().get(0))) {
+                event.getMessage().delete();
+            }
+        } catch (Exception ex) {
+            logger.info("Failed on a user deleting a message.");
+            throw new IllegalStateException(ex);
         }
     }
 

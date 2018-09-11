@@ -1,6 +1,7 @@
 package com.discord.randsteamgamebot.utils;
 
 import com.discord.randsteamgamebot.domain.Game;
+import com.discord.randsteamgamebot.domain.SteamUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sx.blah.discord.api.ClientBuilder;
@@ -8,6 +9,7 @@ import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.api.internal.json.objects.EmbedObject;
 import sx.blah.discord.handle.impl.obj.ReactionEmoji;
 import sx.blah.discord.handle.obj.IChannel;
+import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.util.EmbedBuilder;
 import sx.blah.discord.util.RequestBuffer;
 
@@ -98,5 +100,32 @@ public class BotUtils {
 
 
         RequestBuffer.request(() -> channel.sendMessage(builder.build()).addReaction(DELETE_EMOJI));
+    }
+
+    /**
+     * Send a message on the discord channel
+     */
+    public static IMessage sendInitialMessage(IChannel channel, SteamUser steamUser) {
+        RequestBuffer.RequestFuture<IMessage> request = RequestBuffer.request(() ->
+                channel.sendMessage(steamUser.getDiscordRequester() + " - Retrieving information for " + steamUser.getDisplayName() + "..."));
+        return request.get();
+    }
+
+    public static void editMessage(IMessage message, SteamUser steamUser,  String content) {
+        RequestBuffer.request(() -> {
+            message.edit(steamUser.getDiscordRequester() + " - " + content);
+        });
+    }
+
+    public static void editMessage(IMessage message, String content) {
+        RequestBuffer.request(() -> {
+            message.edit(content);
+        });
+    }
+
+    public static void editMessage(IMessage message, SteamUser steamUser, EmbedObject content) {
+        RequestBuffer.request(() -> {
+            message.edit(steamUser.getDiscordRequester() + " - ", content);
+        });
     }
 }
