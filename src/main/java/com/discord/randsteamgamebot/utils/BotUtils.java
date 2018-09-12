@@ -15,6 +15,7 @@ import sx.blah.discord.util.RequestBuffer;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class BotUtils {
 
@@ -22,6 +23,9 @@ public class BotUtils {
 
     public final static String BOT_PREFIX = "!";
     public static final ReactionEmoji DELETE_EMOJI = ReactionEmoji.of("❌");
+    private final static int BOT_COL_RED = 41;
+    private final static int BOT_COL_GREEN = 128;
+    private final static int BOT_COL_BLUE = 185;
 
     public static IDiscordClient createClient(String token) {
         return new ClientBuilder()
@@ -32,10 +36,16 @@ public class BotUtils {
 
     }
 
-    public static EmbedObject embedBuilderForGenre(String title, String desc, String errorMessage) {
+    private static EmbedBuilder createEmbedBuilder(String title) {
         EmbedBuilder embedBuilder = new EmbedBuilder();
-        embedBuilder.withColor(41, 128, 185);
         embedBuilder.withTitle(title);
+        embedBuilder.withColor(BOT_COL_RED, BOT_COL_GREEN, BOT_COL_BLUE);
+
+        return embedBuilder;
+    }
+
+    public static EmbedObject embedBuilderForGenre(String title) {
+        EmbedBuilder embedBuilder = createEmbedBuilder(title);
 
         embedBuilder.appendField("Possible genres: \n",
                 "1.     " + GameGenres.gameGenreMap.get("early access") + "     " + "\n" +
@@ -54,17 +64,31 @@ public class BotUtils {
         return embedBuilder.build();
     }
 
-    public static EmbedBuilder createEmbedBuilder(List<Game> games, String title, String desc, boolean mostPlayed) {
+    public static EmbedObject embedBuilderForTags(String title) {
+        EmbedBuilder embedBuilder = createEmbedBuilder(title);
+
+        embedBuilder.appendField("Available tags: \n",
+                "1. Indie\n" +
+                        "2. Turn-Based\n" +
+                        "3. VR\n" +
+                        "4. Replay Value\n" +
+                        "5. Visual Novel\n" +
+                        "6. Steampunk\n" +
+                        "7. Crime\n" +
+                        "Visit [Steam Database](https://steamdb.info/tags/) for more tags."
+                ,true);
+
+        return embedBuilder.build();
+    }
+
+    public static EmbedObject createEmbedBuilder(List<Game> games, String title, String desc, boolean mostPlayed) {
         if (mostPlayed) {
             games.sort(Comparator.comparingInt(Game::getMinutesPlayed).reversed());
         } else {
             games.sort(Comparator.comparingInt(Game::getMinutesPlayed));
         }
 
-        EmbedBuilder embedBuilder = new EmbedBuilder();
-        embedBuilder.withColor(41, 128, 185);
-        embedBuilder.withTitle(title);
-        embedBuilder.withDesc(desc);
+        EmbedBuilder embedBuilder = createEmbedBuilder(title);
 
         embedBuilder.appendField("Game Name",
                 games.get(0).getEmbedLink() + "\n" +
@@ -80,7 +104,7 @@ public class BotUtils {
                         games.get(3).getGamePlayedTime() + "\n" +
                         games.get(4).getGamePlayedTime(), true);
 
-        return embedBuilder;
+        return embedBuilder.build();
     }
 
     // Build and display the list of commands to the user
@@ -125,7 +149,7 @@ public class BotUtils {
 
     public static void editMessage(IMessage message, SteamUser steamUser, EmbedObject content) {
         RequestBuffer.request(() -> {
-            message.edit(steamUser.getDiscordRequester() + " - ", content);
+            message.edit(steamUser.getDiscordRequester() + "", content);
         });
     }
 }

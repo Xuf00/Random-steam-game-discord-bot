@@ -47,6 +47,10 @@ public class CommandHandler {
             } else if (args.size() == 2 && args.get(1).equals("unplayed")) {
                 crawler.randUnplayedGame();
                 return ;
+            } else if (args.size() >= 2 && args.get(1).equals("tag")) {
+                String tag = args.stream().skip(2).collect(joining(" ")).toLowerCase();
+                crawler.randGameByTag(tag);
+                return ;
             } else if (args.size() >= 2) {
                 String genres = args.stream().skip(1).collect(joining(" ")).toLowerCase();
                 crawler.randGameByGenre(genres);

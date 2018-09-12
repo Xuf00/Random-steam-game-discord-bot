@@ -9,6 +9,7 @@ package com.discord.randsteamgamebot.randomizer;
 import com.discord.randsteamgamebot.domain.Game;
 import com.discord.randsteamgamebot.domain.SteamUser;
 import com.discord.randsteamgamebot.utils.BotUtils;
+import com.discord.randsteamgamebot.utils.ErrorMessages;
 import com.discord.randsteamgamebot.utils.GameGenres;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
@@ -38,7 +39,6 @@ import static com.discord.randsteamgamebot.utils.BotUtils.editMessage;
  */
 public class GameRandomizer {
 
-    public static final String NO_GAMES_ERROR = "This user either doesn't own any games or their Steam privacy settings are affecting the result.";
     private Logger logger = LoggerFactory.getLogger(GameRandomizer.class);
 
     public static String STEAM_API_KEY;
@@ -61,7 +61,7 @@ public class GameRandomizer {
             ArrayList<Game> allGames = Game.getAllGames(steamUser.getSteam64Id());
 
             if (Game.noGamesOwned(allGames)) {
-                BotUtils.editMessage(message, steamUser, NO_GAMES_ERROR);
+                BotUtils.editMessage(message, steamUser, ErrorMessages.NO_GAMES_ERR);
                 return ;
             }
 
@@ -91,7 +91,7 @@ public class GameRandomizer {
             ArrayList<Game> allGames = Game.getAllGames(steamUser.getSteam64Id());
 
             if (Game.noGamesOwned(allGames)) {
-                BotUtils.editMessage(message, steamUser, NO_GAMES_ERROR);
+                BotUtils.editMessage(message, steamUser, ErrorMessages.NO_GAMES_ERR);
                 return ;
             }
 
@@ -134,7 +134,7 @@ public class GameRandomizer {
             ArrayList<Game> allGames = Game.getAllGames(steamUser.getSteam64Id());
 
             if (Game.noGamesOwned(allGames)) {
-                BotUtils.editMessage(message, steamUser, NO_GAMES_ERROR);
+                BotUtils.editMessage(message, steamUser, ErrorMessages.NO_GAMES_ERR);
                 return ;
             }
 
@@ -173,7 +173,7 @@ public class GameRandomizer {
             ArrayList<Game> allGames = Game.getAllGames(steamUser.getSteam64Id());
 
             if (Game.noGamesOwned(allGames)) {
-                BotUtils.editMessage(message, steamUser, NO_GAMES_ERROR);
+                BotUtils.editMessage(message, steamUser, ErrorMessages.NO_GAMES_ERR);
                 return ;
             }
 
@@ -185,10 +185,10 @@ public class GameRandomizer {
                 return ;
             }
 
-            EmbedBuilder embedBuilder = BotUtils.createEmbedBuilder(playedGames, "Most played games for " + steamUser.getDisplayName() + "\n",
+            EmbedObject embedObject = BotUtils.createEmbedBuilder(playedGames, "Most played games for " + steamUser.getDisplayName() + "\n",
                     "The top five most played games on Steam for this user.", true);
 
-            BotUtils.editMessage(message, steamUser, embedBuilder.build());
+            BotUtils.editMessage(message, steamUser, embedObject);
 
             logger.info("Successfully returned most played games for profile: " + steamUser.getSteam64Id()
                     + ", user owns " + steamUser.getTotalGames() + " games.");
@@ -207,7 +207,7 @@ public class GameRandomizer {
             ArrayList<Game> allGames = Game.getAllGames(steamUser.getSteam64Id());
 
             if (Game.noGamesOwned(allGames)) {
-                BotUtils.editMessage(message, steamUser, NO_GAMES_ERROR);
+                BotUtils.editMessage(message, steamUser, ErrorMessages.NO_GAMES_ERR);
                 return ;
             }
 
@@ -219,15 +219,10 @@ public class GameRandomizer {
                 return ;
             }
 
-            EmbedBuilder builder = new EmbedBuilder();
-            builder.withColor(41, 128, 185);
-            builder.withDesc("The top five least played games on Steam for this user.");
-            builder.withTitle("Least played games for " + steamUser.getDisplayName() + "\n");
-
-            EmbedBuilder embedBuilder = BotUtils.createEmbedBuilder(playedGames, "Least played games for " + steamUser.getDisplayName() + "\n",
+            EmbedObject embedObject = BotUtils.createEmbedBuilder(playedGames, "Least played games for " + steamUser.getDisplayName() + "\n",
                     "The top five least played games on Steam for this user. (With playtime)", false);
 
-            BotUtils.editMessage(message, steamUser, embedBuilder.build());
+            BotUtils.editMessage(message, steamUser, embedObject);
 
             logger.info("Successfully returned least played games for profile: " + steamUser.getSteam64Id()
                     + ", user owns " + steamUser.getTotalGames() + " games.");
@@ -246,14 +241,14 @@ public class GameRandomizer {
         try {
             String genreVal = GameGenres.gameGenreMap.get(genre);
             if (genreVal == null) {
-                BotUtils.editMessage(message, steamUser, BotUtils.embedBuilderForGenre("!rgame <steamname> <genre>", "", ""));
+                BotUtils.editMessage(message, steamUser, BotUtils.embedBuilderForGenre("!rgame <steamname> <genre>"));
                 return ;
             }
 
             ArrayList<Game> allGames = Game.getAllGames(steamUser.getSteam64Id());
 
             if (Game.noGamesOwned(allGames)) {
-                BotUtils.editMessage(message, steamUser, NO_GAMES_ERROR);
+                BotUtils.editMessage(message, steamUser, ErrorMessages.NO_GAMES_ERR);
                 return ;
             }
 
@@ -263,7 +258,7 @@ public class GameRandomizer {
             JSONObject object = response.getBody().getObject();
 
             if (object.length() == 0) {
-                BotUtils.editMessage(message, steamUser, "The SteamSpy API is currently experiencing issues, please try this command again later.");
+                BotUtils.editMessage(message, steamUser, ErrorMessages.STEAM_SPY_DOWN);
                 return ;
             }
 
@@ -280,7 +275,7 @@ public class GameRandomizer {
 
             String storePage = "http://store.steampowered.com/app/" + randomGameFromGenre.getGameID();
 
-            BotUtils.editMessage(message, steamUser, steamUser.getDisplayName() + " owns " + gamesByGenre.size() + " games in the **" + genreVal + "** genre.\n"
+            BotUtils.editMessage(message, steamUser, steamUser.getDisplayName() + " owns " + gamesByGenre.size() + " game(s) in the **" + genreVal + "** genre.\n"
                     + "I'd recommend " + steamUser.getDisplayName() + " plays **" + randomGameFromGenre.getGameName() + "**.\n" +
                     "Install or play the game: " + randomGameFromGenre.getInstallLink() + " or go to the store page: " + storePage);
 
@@ -290,5 +285,55 @@ public class GameRandomizer {
             logger.error("Exception thrown in getting a random game by genre.");
             throw new IllegalStateException(ex);
         }
+    }
+
+    public void randGameByTag(String tag) {
+        try {
+            if (tag == null || tag.equals("")) {
+                BotUtils.editMessage(message, steamUser, BotUtils.embedBuilderForTags("!rgame <steamname> tag <tagname>"));
+                return ;
+            }
+
+            ArrayList<Game> allGames = Game.getAllGames(steamUser.getSteam64Id());
+
+            if (Game.noGamesOwned(allGames)) {
+                BotUtils.editMessage(message, steamUser, ErrorMessages.NO_GAMES_ERR);
+                return ;
+            }
+
+            steamUser.setTotalGames(allGames.size());
+
+            HttpResponse<JsonNode> response = Unirest.get("https://steamspy.com/api.php?request=tag&tag=" + URLEncoder.encode(tag, "UTF-8")).asJson();
+            JSONObject object = response.getBody().getObject();
+
+            if (object.length() == 0) {
+                BotUtils.editMessage(message, steamUser, ErrorMessages.STEAM_SPY_DOWN);
+                return ;
+            }
+
+            List<Game> gamesByTag = allGames.stream()
+                    .filter(game -> object.has(game.getGameID()))
+                    .collect(Collectors.toList());
+
+            if (Game.noGamesOwned(gamesByTag)) {
+                BotUtils.editMessage(message, steamUser, "You don't own any games from the " + tag + " tag.");
+                return ;
+            }
+
+            Game randGameFromTag = Game.chooseRandGame(gamesByTag);
+
+            String storePage = "http://store.steampowered.com/app/" + randGameFromTag.getGameID();
+
+            BotUtils.editMessage(message, steamUser,
+                    "" + steamUser.getDisplayName() + " owns " + gamesByTag.size() + " game(s) in the **" + tag + "** tag.\n"
+                    + "I'd recommend " + steamUser.getDisplayName() + " plays **" + randGameFromTag.getGameName() + "**.\n" +
+                    "Install or play the game: " + randGameFromTag.getInstallLink() + " or go to the store page: " + storePage);
+
+            logger.info("Successfully returned game from tag " + tag + " " + randGameFromTag.getGameName() + " for profile: " + steamUser.getSteam64Id()
+                    + ", user owns " + steamUser.getTotalGames() + " games.");
+        } catch (Exception ex) {
+            throw new IllegalStateException(ex);
+        }
+
     }
 }
