@@ -113,14 +113,18 @@ public class BotUtils {
         builder.withColor(41, 128, 185);
         builder.appendDescription("**Important: Your Steam Privacy settings will affect the outcome, so try to make everything public.**\n\n"
                                     + "Grabs all of a users games on Steam and selects a random game."
-                                    + " User can filter whether or not they want a random game they haven't played before. Can also see top played and least played games. **New feature to filter by genre.**");
+                                    + " User can filter whether or not they want a random game they haven't played before. Can also see top played and least played games. **New feature to filter by tags.**");
         builder.appendField("Commands   ", "!rgame <name/17 digit ID>"
                                     + "           " + "\n!rgame <name/17 digit ID> <played/unplayed>"
                                     + "           " + "\n!rgame <name/17 digit ID> <genre>"
+                                    + "           " + "\n!rgame <name/17 digit ID> tag <tagname>"
                                     + "           " + "\n!mostplayed <name/17 digit ID>"
                                     + "           " + "\n!leastplayed <name/17 digit ID>"
-                                    + "           " + "\n\nGithub link: https://git.io/vxnPL", true);
+                                    + "           " + "\n\n[Github](https://git.io/vxnPL)"
+                                    + "           " + "\n[Support Server](https://discord.gg/StGwXfy)"
+                                    + "           " + "\n[Donate](https://donatebot.io/checkout/447433414665306122)",true);
         builder.appendField("Example", "!rgame Xufoo\n!rgame 76561198054740594 played\n!rgame Xufoo action\n!mostplayed Xufoo\n!leastplayed Xufoo", true);
+        builder.appendField("Special Mention", "[Steamspy](http://steamspy.com/) for the genre and tags information.", true);
 
 
         RequestBuffer.request(() -> channel.sendMessage(builder.build()).addReaction(DELETE_EMOJI));
