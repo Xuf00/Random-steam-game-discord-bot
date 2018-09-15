@@ -7,7 +7,7 @@ import sx.blah.discord.api.IDiscordClient;
 public class BotUtilsTest extends TestCase {
 
     public void testCreateClient() throws Exception {
-        String botToken = "";
+        String botToken = System.getProperty("bot.token");
         IDiscordClient client = BotUtils.createClient(botToken);
         Assert.assertNotNull("Token is incorrect", client);
     }
