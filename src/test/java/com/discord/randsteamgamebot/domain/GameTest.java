@@ -1,6 +1,5 @@
 package com.discord.randsteamgamebot.domain;
 
-import com.discord.randsteamgamebot.randomizer.GameRandomizer;
 import junit.framework.TestCase;
 
 import java.util.ArrayList;
@@ -9,7 +8,6 @@ public class GameTest extends TestCase {
 
     public void setUp() throws Exception {
         super.setUp();
-        GameRandomizer.STEAM_API_KEY = "8DD2A27E65544B34376FD279920FA900";
     }
 
     public void testGetAllGames() throws Exception {

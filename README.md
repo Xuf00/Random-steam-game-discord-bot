@@ -34,6 +34,10 @@ https://bots.discord.pw/bots/348109452043485185
 
 !rgame <Custom URL/17 digit ID> <played/unplayed>
 
+!rgame <Custom URL/17 digit ID> <genre>
+
+!rgame <Custom URL/17 digit ID> tag <tagName>
+
 !mostplayed <Custom URL/17 digit ID>
 
 !leastplayed <Custom URL/17 digit ID>

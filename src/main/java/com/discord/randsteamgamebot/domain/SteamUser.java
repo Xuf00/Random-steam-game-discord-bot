@@ -15,7 +15,7 @@ import sx.blah.discord.handle.obj.IUser;
 
 import java.io.IOException;
 
-import static com.discord.randsteamgamebot.randomizer.GameRandomizer.STEAM_API_KEY;
+import static com.discord.randsteamgamebot.utils.BotUtils.STEAM_API_KEY;
 
 public class SteamUser {
 
@@ -81,9 +81,9 @@ public class SteamUser {
                     "&steamids=" + steam64Id).asJson();
 
             JSONObject userInfo = response.getBody().getObject().getJSONObject("response");
-            JSONArray allSteamGames = userInfo.getJSONArray("players");
+            JSONArray jsonResponse = userInfo.getJSONArray("players");
 
-            if (allSteamGames.toString().contains("timecreated")) {
+            if (jsonResponse.toString().contains("timecreated")) {
                 return false;
             }
             return true;

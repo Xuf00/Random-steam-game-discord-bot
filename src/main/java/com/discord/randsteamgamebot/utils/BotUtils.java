@@ -21,6 +21,7 @@ public class BotUtils {
 
     private static Logger logger = LoggerFactory.getLogger(BotUtils.class);
 
+    public static String STEAM_API_KEY;
     public final static String BOT_PREFIX = "!";
     public static final ReactionEmoji DELETE_EMOJI = ReactionEmoji.of("❌");
     private final static int BOT_COL_RED = 41;
@@ -123,7 +124,12 @@ public class BotUtils {
                                     + "           " + "\n\n[Github](https://git.io/vxnPL)"
                                     + "           " + "\n[Support Server](https://discord.gg/StGwXfy)"
                                     + "           " + "\n[Donate](https://donatebot.io/checkout/447433414665306122)",true);
-        builder.appendField("Example", "!rgame Xufoo\n!rgame 76561198054740594 played\n!rgame Xufoo action\n!mostplayed Xufoo\n!leastplayed Xufoo", true);
+        builder.appendField("Example", "!rgame Xufoo\n" +
+                                                     "!rgame 76561198054740594 played\n" +
+                                                     "!rgame Xufoo action\n" +
+                                                     "!rgame Xufoo tag great soundtrack\n" +
+                                                     "!mostplayed Xufoo\n" +
+                                                     "!leastplayed Xufoo", true);
         builder.appendField("Special Mention", "[Steamspy](http://steamspy.com/) for the genre and tags information.", true);
 
 

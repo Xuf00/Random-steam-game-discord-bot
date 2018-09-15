@@ -41,7 +41,6 @@ public class GameRandomizer {
 
     private Logger logger = LoggerFactory.getLogger(GameRandomizer.class);
 
-    public static String STEAM_API_KEY;
     private IChannel channel;
     private IMessage message;
     private SteamUser steamUser;

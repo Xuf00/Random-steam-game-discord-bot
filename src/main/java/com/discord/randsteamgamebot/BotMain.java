@@ -12,12 +12,14 @@ import sx.blah.discord.api.IDiscordClient;
 public class BotMain {
     
     public static void main(String[] args) {
-        if (args.length <= 0 && args.length > 2) {
-            throw new IllegalStateException("Need to pass in the bot token as an argument.");
-        }
-        GameRandomizer.STEAM_API_KEY = args[1];
+        BotUtils.STEAM_API_KEY = System.getProperty("steam.api.key");
+        String botToken = System.getProperty("bot.token");
 
-        IDiscordClient discordBot = BotUtils.createClient(args[0]);
+        if (BotUtils.STEAM_API_KEY == null || botToken == null) {
+            throw new IllegalStateException("Requires the steam.api.key property and bot.token property.");
+        }
+
+        IDiscordClient discordBot = BotUtils.createClient(botToken);
         discordBot.getDispatcher().registerListener(new ReadyListener());
         discordBot.login();
     }

@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import static com.discord.randsteamgamebot.randomizer.GameRandomizer.STEAM_API_KEY;
+import static com.discord.randsteamgamebot.utils.BotUtils.STEAM_API_KEY;
 
 /**
  *
@@ -134,7 +134,7 @@ public class Game {
     private static ArrayList<Game> parseJSON(HttpResponse<JsonNode> response) {
         JSONObject steamGameInfo = response.getBody().getObject().getJSONObject("response");
 
-        if (steamGameInfo.length() == 0) {
+        if (steamGameInfo == null || steamGameInfo.length() == 0) {
             return null;
         }
 

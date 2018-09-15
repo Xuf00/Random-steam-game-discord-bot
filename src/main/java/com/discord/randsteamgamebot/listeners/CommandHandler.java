@@ -18,7 +18,7 @@ import static java.util.stream.Collectors.joining;
 public class CommandHandler {
 
     private static Map<String, Command> commandMap = new HashMap<>();
-    private ExecutorService executorService = Executors.newFixedThreadPool(8);
+    private ExecutorService executorService = Executors.newFixedThreadPool(20);
 
     static {
         commandMap.put("sbhelp", (event, args) -> {
