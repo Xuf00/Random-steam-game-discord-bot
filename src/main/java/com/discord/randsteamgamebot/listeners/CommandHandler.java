@@ -89,7 +89,6 @@ public class CommandHandler {
     @EventSubscriber
     public void onMessageReceived(MessageReceivedEvent event) {
         String[] argArray = event.getMessage().getContent().split(" ");
-
         if (argArray.length == 0) {
             return ;
         }

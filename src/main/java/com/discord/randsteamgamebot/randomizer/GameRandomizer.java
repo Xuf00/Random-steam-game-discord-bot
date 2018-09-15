@@ -324,7 +324,8 @@ public class GameRandomizer {
             String storePage = "http://store.steampowered.com/app/" + randGameFromTag.getGameID();
 
             BotUtils.editMessage(message, steamUser,
-                    "" + steamUser.getDisplayName() + " owns " + gamesByTag.size() + " game(s) in the **" + tag + "** tag.\n"
+                    "" + steamUser.getDisplayName() + " owns " + gamesByTag.size() + " game(s) in the **" + tag + "** tag. Remember that tags" +
+                            " are applied to games by steam users, so there will sometimes be discrepancies.\n"
                     + "I'd recommend " + steamUser.getDisplayName() + " plays **" + randGameFromTag.getGameName() + "**.\n" +
                     "Install or play the game: " + randGameFromTag.getInstallLink() + " or go to the store page: " + storePage);
 
