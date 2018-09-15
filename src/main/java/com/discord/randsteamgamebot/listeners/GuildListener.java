@@ -9,6 +9,7 @@ import sx.blah.discord.handle.impl.events.guild.GuildLeaveEvent;
 import sx.blah.discord.handle.impl.events.guild.GuildUnavailableEvent;
 import sx.blah.discord.handle.impl.events.guild.channel.message.reaction.ReactionEvent;
 import sx.blah.discord.handle.obj.*;
+import sx.blah.discord.util.PermissionUtils;
 import sx.blah.discord.util.RequestBuffer;
 
 import java.util.EnumSet;
@@ -27,22 +28,30 @@ public class GuildListener {
             IUser self = client.getOurUser();
             IUser reactor = event.getUser();
             IMessage message = event.getMessage();
-
-            if (event.getUser().equals(self) || !message.getAuthor().equals(self)) {
-                return ;
-            }
-
             boolean reactionIsDelete = event.getReaction().getEmoji().equals(DELETE_EMOJI);
 
-            if (!reactionIsDelete) {
+            if (event.getUser().equals(self) || !message.getAuthor().equals(self) || !reactionIsDelete) {
                 return ;
             }
 
             if (message.getContent().equals("")) {
                 message.delete();
+                return ;
             }
             else if (reactor.equals(message.getMentions().get(0))) {
                 message.delete();
+                return ;
+            }
+
+            EnumSet<Permissions> permissions = EnumSet.of(Permissions.ADMINISTRATOR, Permissions.MANAGE_MESSAGES, Permissions.MANAGE_CHANNEL, Permissions.MANAGE_SERVER);
+            EnumSet<Permissions> permissionsForGuild = reactor.getPermissionsForGuild(event.getGuild());
+
+            if (permissionsForGuild != null) {
+                permissionsForGuild.forEach(permission -> {
+                    if (permissions.contains(permission)) {
+                        message.delete();
+                    }
+                });
             }
 
         } catch (Exception ex) {
