@@ -1,8 +1,10 @@
 package com.discord.randsteamgamebot.domain;
 
+import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class GameTest extends TestCase {
 
@@ -20,6 +22,19 @@ public class GameTest extends TestCase {
         Thread.sleep(10000);
         long memoryNow = runtime.totalMemory() - runtime.freeMemory();
         System.out.println("Memory now: " + memoryNow);
+    }
+
+    public void testChooseRandGame() {
+        List<Game> games = new ArrayList<>();
+
+        Game game = new Game("2546", "Test game");
+        Game game1 = new Game("456565", "Another game");
+
+        games.add(game);
+        games.add(game1);
+
+        Game game2 = Game.chooseRandGame(games);
+        Assert.assertNotNull(game2);
     }
 
 }
