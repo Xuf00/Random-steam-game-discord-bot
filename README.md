@@ -11,19 +11,18 @@ If you want to avoid any issues just ensure you have your privacy settings set t
 ## Current version ## 
 Few additions I would like to make in due time -
 
-- Look into adding tag support for games, following up on the newly added genres
-- Refactor the way commands are currently handled as it's awful right now
-- Assessing the speeds of the bot and whether it needs paid hosting/whether I want to
-- Consider adding emojis for refreshing the random game and to delete posts, this will help combat spam by the bot
+- Refactor the way commands are currently handled (maybe)
 
 ## Hosting ##
 
-The bot is now being hosted on an Amazon EC2 instance. You can invite the bot to your server using this link:
-https://discordapp.com/oauth2/authorize?client_id=348109452043485185&permissions=67324928&scope=bot
+The bot is now being hosted and can be invited to discord servers.
 
-Alternatively, find it on:
-https://bots.discord.pw/bots/348109452043485185
+[Invite the bot directly](https://discordapp.com/oauth2/authorize?client_id=348109452043485185&permissions=67324928&scope=bot
+)
 
+[Find it on bots.discord.pw](https://bots.discord.pw/bots/348109452043485185)
+
+[Find it on discordbots](https://discordbots.org/bot/348109452043485185)
 
 ## Commands ##
 
