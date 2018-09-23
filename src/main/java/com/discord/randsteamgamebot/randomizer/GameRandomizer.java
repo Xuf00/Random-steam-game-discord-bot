@@ -41,15 +41,12 @@ public class GameRandomizer {
 
     private Logger logger = LoggerFactory.getLogger(GameRandomizer.class);
 
-    private IChannel channel;
     private IMessage message;
     private SteamUser steamUser;
 
     public GameRandomizer(IChannel channel, SteamUser steamUser) {
-        this.channel = channel;
         this.steamUser = steamUser;
         message = BotUtils.sendInitialMessage(channel, steamUser);
-        message.addReaction(DELETE_EMOJI);
     }
 
     /**

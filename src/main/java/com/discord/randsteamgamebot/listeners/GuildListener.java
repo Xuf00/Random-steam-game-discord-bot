@@ -16,6 +16,7 @@ import java.util.EnumSet;
 import java.util.stream.Collectors;
 
 import static com.discord.randsteamgamebot.utils.BotUtils.DELETE_EMOJI;
+import static com.discord.randsteamgamebot.utils.BotUtils.deleteMessage;
 
 public class GuildListener {
 
@@ -30,16 +31,16 @@ public class GuildListener {
             IMessage message = event.getMessage();
             boolean reactionIsDelete = event.getReaction().getEmoji().equals(DELETE_EMOJI);
 
-            if (event.getUser().equals(self) || !message.getAuthor().equals(self) || !reactionIsDelete) {
+            if (event.getUser().equals(self) || !message.getAuthor().equals(self) || !reactionIsDelete || !event.getReaction().getUsers().contains(self)) {
                 return ;
             }
 
             if (message.getContent().equals("")) {
-                message.delete();
+                deleteMessage(message);
                 return ;
             }
             else if (reactor.equals(message.getMentions().get(0))) {
-                message.delete();
+                deleteMessage(message);
                 return ;
             }
 
@@ -49,11 +50,10 @@ public class GuildListener {
             if (permissionsForGuild != null) {
                 permissionsForGuild.forEach(permission -> {
                     if (permissions.contains(permission)) {
-                        message.delete();
+                        deleteMessage(message);
                     }
                 });
             }
-
         } catch (Exception ex) {
             logger.info("Failed on a user deleting a message.");
             throw new IllegalStateException(ex);

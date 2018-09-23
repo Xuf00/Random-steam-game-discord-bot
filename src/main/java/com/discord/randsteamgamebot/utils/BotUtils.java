@@ -147,19 +147,23 @@ public class BotUtils {
 
     public static void editMessage(IMessage message, SteamUser steamUser,  String content) {
         RequestBuffer.request(() -> {
-            message.edit(steamUser.getDiscordRequester() + " - " + content);
+            message.edit(steamUser.getDiscordRequester() + " - " + content).addReaction(DELETE_EMOJI);
         });
     }
 
     public static void editMessage(IMessage message, String content) {
         RequestBuffer.request(() -> {
-            message.edit(content);
+            message.edit(content).addReaction(DELETE_EMOJI);
         });
     }
 
     public static void editMessage(IMessage message, SteamUser steamUser, EmbedObject content) {
         RequestBuffer.request(() -> {
-            message.edit(steamUser.getDiscordRequester() + "", content);
+            message.edit(steamUser.getDiscordRequester() + "", content).addReaction(DELETE_EMOJI);
         });
+    }
+
+    public static void deleteMessage(IMessage message) {
+        RequestBuffer.request(message::delete);
     }
 }
