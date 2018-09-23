@@ -141,12 +141,12 @@ public class BotUtils {
     /**
      * Send a message on the discord channel
      */
-    public static Future<IMessage> sendInitialMessage(IChannel channel, IUser user) {
+    public static Future<IMessage> sendInitialMessage(IChannel channel, IUser user, String profile) {
         return RequestBuffer.request(() ->
-                channel.sendMessage(user + " - Retrieving information..."));
+                channel.sendMessage(user + " - Retrieving information for the profile " + profile + "..."));
     }
 
-    public static void editMessage(IMessage message, SteamUser steamUser,  String content) {
+    public static void editMessage(IMessage message, SteamUser steamUser, String content) {
         RequestBuffer.request(() -> {
             message.edit(steamUser.getDiscordRequester() + " - " + content).addReaction(DELETE_EMOJI);
         });

@@ -1,3 +1,5 @@
+[![Discord Bots](https://discordbots.org/api/widget/status/348109452043485185.svg)](https://discordbots.org/bot/348109452043485185)
+
 # Random Steam Game Bot #
 A simple bot for discord to give a user a random game to play from their Steam profile. A user can also filter by games they've played or games they haven't yet played. Another feature is the capability of checking your most played or least played games.
 

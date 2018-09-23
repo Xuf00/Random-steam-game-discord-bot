@@ -110,7 +110,7 @@ public class CommandHandler {
 
         if (commandMap.containsKey(commandStr)) {
             executorService.submit(() -> {
-                Future<IMessage> message = BotUtils.sendInitialMessage(event.getChannel(), event.getAuthor());
+                Future<IMessage> message = BotUtils.sendInitialMessage(event.getChannel(), event.getAuthor(), argsList.get(0));
                 commandMap.get(commandStr).runCommand(event, message, argsList);
             });
         }
