@@ -96,6 +96,7 @@ public class GameRandomizer {
 
             if (Game.noGamesOwned(playedGames)) {
                 BotUtils.editMessage(message, steamUser, "This user hasn't played any games yet or their privacy setting is hiding the game play time.");
+                return ;
             }
 
             int playedGameVal = playedGames.size();
