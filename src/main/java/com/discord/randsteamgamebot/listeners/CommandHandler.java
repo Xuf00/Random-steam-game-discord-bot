@@ -5,6 +5,7 @@ import com.discord.randsteamgamebot.domain.SteamUser;
 import com.discord.randsteamgamebot.utils.BotUtils;
 import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
+import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
 
 import java.util.*;
@@ -21,11 +22,11 @@ public class CommandHandler {
     private ExecutorService executorService = Executors.newFixedThreadPool(20);
 
     static {
-        commandMap.put("sbhelp", (event, args) -> {
+        commandMap.put("sbhelp", (event, message, args) -> {
             commandList(event.getChannel());
         });
 
-        commandMap.put("rgame", (event, args) -> {
+        commandMap.put("rgame", (event, message, args) -> {
             if (args.size() < 1) {
                 commandList(event.getChannel());
                 return ;
@@ -39,7 +40,7 @@ public class CommandHandler {
             }
             steamUser.setDiscordRequester(event.getAuthor());
 
-            GameRandomizer crawler = new GameRandomizer(event.getChannel(), steamUser);
+            GameRandomizer crawler = new GameRandomizer(message, steamUser);
 
             if (args.size() == 2 && args.get(1).equals("played")) {
                 crawler.randPlayedGame();
@@ -59,7 +60,7 @@ public class CommandHandler {
             crawler.randGame();
         });
 
-        commandMap.put("mostplayed", (event, args) -> {
+        commandMap.put("mostplayed", (event, message, args) -> {
             String steamName = args.get(0);
 
             SteamUser steamUser = SteamUser.attemptToCreateSteamUser(steamName);
@@ -68,11 +69,11 @@ public class CommandHandler {
                 return ;
             }
             steamUser.setDiscordRequester(event.getAuthor());
-            GameRandomizer crawler = new GameRandomizer(event.getChannel(), steamUser);
+            GameRandomizer crawler = new GameRandomizer(message, steamUser);
             crawler.mostPlayedGames();
         });
 
-        commandMap.put("leastplayed", (event, args) -> {
+        commandMap.put("leastplayed", (event, message, args) -> {
             String steamName = args.get(0);
 
             SteamUser steamUser = SteamUser.attemptToCreateSteamUser(steamName);
@@ -81,7 +82,7 @@ public class CommandHandler {
                 return ;
             }
             steamUser.setDiscordRequester(event.getAuthor());
-            GameRandomizer crawler = new GameRandomizer(event.getChannel(), steamUser);
+            GameRandomizer crawler = new GameRandomizer(message, steamUser);
             crawler.leastPlayedGames();
         });
     }
@@ -108,7 +109,8 @@ public class CommandHandler {
 
         if (commandMap.containsKey(commandStr)) {
             executorService.submit(() -> {
-                commandMap.get(commandStr).runCommand(event, argsList);
+                IMessage message = BotUtils.sendInitialMessage(event.getChannel(), event.getAuthor());
+                commandMap.get(commandStr).runCommand(event, message, argsList);
             });
         }
     }

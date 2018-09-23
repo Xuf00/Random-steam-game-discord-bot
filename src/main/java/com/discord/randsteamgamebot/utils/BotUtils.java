@@ -10,6 +10,7 @@ import sx.blah.discord.api.internal.json.objects.EmbedObject;
 import sx.blah.discord.handle.impl.obj.ReactionEmoji;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
+import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.util.EmbedBuilder;
 import sx.blah.discord.util.RequestBuffer;
 
@@ -139,9 +140,9 @@ public class BotUtils {
     /**
      * Send a message on the discord channel
      */
-    public static IMessage sendInitialMessage(IChannel channel, SteamUser steamUser) {
+    public static IMessage sendInitialMessage(IChannel channel, IUser user) {
         RequestBuffer.RequestFuture<IMessage> request = RequestBuffer.request(() ->
-                channel.sendMessage(steamUser.getDiscordRequester() + " - Retrieving information for " + steamUser.getDisplayName() + "..."));
+                channel.sendMessage(user + " - Retrieving information for " + user + "..."));
         return request.get();
     }
 

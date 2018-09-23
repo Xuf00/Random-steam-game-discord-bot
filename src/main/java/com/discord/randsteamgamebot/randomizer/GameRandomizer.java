@@ -44,9 +44,9 @@ public class GameRandomizer {
     private IMessage message;
     private SteamUser steamUser;
 
-    public GameRandomizer(IChannel channel, SteamUser steamUser) {
+    public GameRandomizer(IMessage message, SteamUser steamUser) {
         this.steamUser = steamUser;
-        message = BotUtils.sendInitialMessage(channel, steamUser);
+        this.message = message;
     }
 
     /**
