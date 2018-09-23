@@ -28,6 +28,8 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 import static com.discord.randsteamgamebot.utils.BotUtils.DELETE_EMOJI;
@@ -44,9 +46,17 @@ public class GameRandomizer {
     private IMessage message;
     private SteamUser steamUser;
 
-    public GameRandomizer(IMessage message, SteamUser steamUser) {
+    public GameRandomizer(Future<IMessage> message, SteamUser steamUser) {
         this.steamUser = steamUser;
-        this.message = message;
+        try {
+            this.message = message.get();
+        } catch (InterruptedException e) {
+            logger.info("Interrupt exception whilst getting initial message.");
+            throw new IllegalStateException(e);
+        } catch (ExecutionException e) {
+            logger.info("Execution exception whilst getting initial message.");
+            throw new IllegalStateException(e);
+        }
     }
 
     /**

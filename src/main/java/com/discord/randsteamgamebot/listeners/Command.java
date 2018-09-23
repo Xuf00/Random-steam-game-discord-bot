@@ -4,9 +4,10 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedE
 import sx.blah.discord.handle.obj.IMessage;
 
 import java.util.List;
+import java.util.concurrent.Future;
 
 public interface Command {
 
-    void runCommand(MessageReceivedEvent event, IMessage origMess, List<String> args);
+    void runCommand(MessageReceivedEvent event, Future<IMessage> origMess, List<String> args);
 
 }

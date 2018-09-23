@@ -11,6 +11,7 @@ import sx.blah.discord.handle.obj.IUser;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import static com.discord.randsteamgamebot.utils.BotUtils.commandList;
 import static com.discord.randsteamgamebot.utils.BotUtils.editMessage;
@@ -109,7 +110,7 @@ public class CommandHandler {
 
         if (commandMap.containsKey(commandStr)) {
             executorService.submit(() -> {
-                IMessage message = BotUtils.sendInitialMessage(event.getChannel(), event.getAuthor());
+                Future<IMessage> message = BotUtils.sendInitialMessage(event.getChannel(), event.getAuthor());
                 commandMap.get(commandStr).runCommand(event, message, argsList);
             });
         }
