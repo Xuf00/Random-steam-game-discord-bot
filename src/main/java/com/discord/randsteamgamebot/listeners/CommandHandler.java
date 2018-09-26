@@ -23,10 +23,6 @@ public class CommandHandler {
     private ExecutorService executorService = Executors.newFixedThreadPool(20);
 
     static {
-        commandMap.put("sbhelp", (event, message, args) -> {
-            commandList(event.getChannel());
-        });
-
         commandMap.put("rgame", (event, message, args) -> {
             if (args.size() < 1) {
                 commandList(event.getChannel());
@@ -107,6 +103,11 @@ public class CommandHandler {
 
         List<String> argsList = new ArrayList<>(Arrays.asList(argArray));
         argsList.remove(0);
+
+        if (commandStr.equals("sbhelp")) {
+            commandList(event.getChannel());
+            return ;
+        }
 
         if (commandMap.containsKey(commandStr)) {
             executorService.submit(() -> {
