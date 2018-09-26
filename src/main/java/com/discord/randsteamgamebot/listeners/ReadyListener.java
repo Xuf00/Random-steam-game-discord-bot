@@ -16,7 +16,7 @@ public class ReadyListener {
     @EventSubscriber
     public void onReadyEvent(ReadyEvent event) { // This method is called when the ReadyEvent is dispatched
         IDiscordClient client = event.getClient();
-        client.changeStreamingPresence(StatusType.ONLINE, "New command for tags | !sbhelp", null);
+        client.changeStreamingPresence(StatusType.ONLINE, "!sbhelp | Newest command is for tags", null);
         EventDispatcher dispatcher = client.getDispatcher();
 
         dispatcher.registerListener(new CommandHandler());
