@@ -11,6 +11,7 @@ import sx.blah.discord.handle.impl.obj.ReactionEmoji;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
+import sx.blah.discord.handle.obj.StatusType;
 import sx.blah.discord.util.EmbedBuilder;
 import sx.blah.discord.util.RequestBuffer;
 
@@ -34,9 +35,11 @@ public class BotUtils {
         return new ClientBuilder()
                 .withToken(token)
                 .withRecommendedShardCount()
-                .setMaxReconnectAttempts(100000)
+                .withPingTimeout(10)
+                .setMaxReconnectAttempts(10)
+                .setMaxMessageCacheCount(100)
+                .setPresence(StatusType.IDLE)
                 .build();
-
     }
 
     private static EmbedBuilder createEmbedBuilder(String title) {
@@ -162,6 +165,10 @@ public class BotUtils {
         RequestBuffer.request(() -> {
             message.edit(steamUser.getDiscordRequester() + "", content).addReaction(DELETE_EMOJI);
         });
+    }
+
+    public static boolean botLoggedInAndReady(IDiscordClient client) {
+        return client.isReady() && client.isLoggedIn();
     }
 
     public static void deleteMessage(IMessage message) {

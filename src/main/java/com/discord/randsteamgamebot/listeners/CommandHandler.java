@@ -91,15 +91,15 @@ public class CommandHandler {
     @EventSubscriber
     public void onMessageReceived(MessageReceivedEvent event) {
         String[] argArray = event.getMessage().getContent().split(" ");
+        if (event.getAuthor().isBot()) {
+            return ;
+        }
+
         if (argArray.length == 0) {
             return ;
         }
 
         if (!argArray[0].startsWith(BotUtils.BOT_PREFIX)) {
-            return ;
-        }
-
-        if (event.getAuthor().isBot()) {
             return ;
         }
 
