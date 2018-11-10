@@ -26,10 +26,6 @@ The bot is now being hosted and can be invited to discord servers.
 
 [Find it on discordbots](https://discordbots.org/bot/348109452043485185)
 
-### Interested in hosting this bot yourself? ###
-
-[Docker Image](https://hub.docker.com/r/xufoo/randsteamgamebot/)
-
 ## Commands ##
 
 ```
