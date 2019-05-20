@@ -122,8 +122,8 @@ public class Game {
                                           "&steamid=" + steam64Id +
                                           "&format=json")
                                           .asJson();
-    ArrayList<Game> allUsersSteamGames = parseJSON(response);
-    return allUsersSteamGames;
+        ArrayList<Game> allUsersSteamGames = parseJSON(response);
+        return allUsersSteamGames;
     }
 
     /**
@@ -183,21 +183,6 @@ public class Game {
         }
         return false;
     }
-
-    /*@Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof Game))
-            return false;
-        if (obj == this)
-            return true;
-
-        Game game = (Game) obj;
-        return new EqualsBuilder().
-
-                append(gameName, game.gameName).
-                append(gameID, game.gameID)
-                .isEquals();
-    }*/
 
     @Override
     public boolean equals(Object o) {
