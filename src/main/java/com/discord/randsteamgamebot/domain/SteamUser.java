@@ -11,7 +11,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.parser.Parser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sx.blah.discord.handle.obj.IUser;
 
 import java.io.IOException;
 
@@ -25,7 +24,7 @@ public class SteamUser {
     private String steam64Id;
     private String profileURL;
     private int totalGames;
-    private IUser discordRequester;
+    /*private IUser discordRequester;*/
 
     private SteamUser() {
 
@@ -63,13 +62,13 @@ public class SteamUser {
         return profileURL;
     }
 
-    public IUser getDiscordRequester() {
+    /*public IUser getDiscordRequester() {
         return discordRequester;
     }
 
     public void setDiscordRequester(IUser discordRequester) {
         this.discordRequester = discordRequester;
-    }
+    }*/
 
     /**
      * Check if the users profile is private, "timecreated" only returns if it's not private

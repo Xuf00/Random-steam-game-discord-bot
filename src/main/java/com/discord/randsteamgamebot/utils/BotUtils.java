@@ -1,24 +1,7 @@
 package com.discord.randsteamgamebot.utils;
 
-import com.discord.randsteamgamebot.domain.Game;
-import com.discord.randsteamgamebot.domain.SteamUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sx.blah.discord.api.ClientBuilder;
-import sx.blah.discord.api.IDiscordClient;
-import sx.blah.discord.api.internal.json.objects.EmbedObject;
-import sx.blah.discord.handle.impl.obj.ReactionEmoji;
-import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
-import sx.blah.discord.handle.obj.StatusType;
-import sx.blah.discord.util.EmbedBuilder;
-import sx.blah.discord.util.RequestBuffer;
-
-import java.util.Comparator;
-import java.util.List;
-import java.util.concurrent.Future;
-import java.util.stream.Collectors;
 
 public class BotUtils {
 
@@ -26,31 +9,20 @@ public class BotUtils {
 
     public static String STEAM_API_KEY;
     public final static String BOT_PREFIX = "!";
-    public static final ReactionEmoji DELETE_EMOJI = ReactionEmoji.of("❌");
+    /*public static final ReactionEmoji DELETE_EMOJI = ReactionEmoji.of("❌");*/
     private final static int BOT_COL_RED = 41;
     private final static int BOT_COL_GREEN = 128;
     private final static int BOT_COL_BLUE = 185;
 
-    public static IDiscordClient createClient(String token) {
-        return new ClientBuilder()
-                .withToken(token)
-                .withRecommendedShardCount()
-                .withPingTimeout(10)
-                .setMaxReconnectAttempts(10)
-                .setMaxMessageCacheCount(100)
-                .setPresence(StatusType.IDLE)
-                .build();
-    }
-
-    private static EmbedBuilder createEmbedBuilder(String title) {
+    /*private static EmbedBuilder createEmbedBuilder(String title) {
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.withTitle(title);
         embedBuilder.withColor(BOT_COL_RED, BOT_COL_GREEN, BOT_COL_BLUE);
 
         return embedBuilder;
-    }
+    }*/
 
-    public static EmbedObject embedBuilderForGenre(String title) {
+    /*public static EmbedObject embedBuilderForGenre(String title) {
         EmbedBuilder embedBuilder = createEmbedBuilder(title);
 
         embedBuilder.appendField("Possible genres: \n",
@@ -68,9 +40,9 @@ public class BotUtils {
                         "12.  " + GameGenres.gameGenreMap.get("multiplayer") + "     ", true);
 
         return embedBuilder.build();
-    }
+    }*/
 
-    public static EmbedObject embedBuilderForTags(String title) {
+    /*public static EmbedObject embedBuilderForTags(String title) {
         EmbedBuilder embedBuilder = createEmbedBuilder(title);
 
         embedBuilder.appendField("Available tags: \n",
@@ -85,9 +57,9 @@ public class BotUtils {
                 ,true);
 
         return embedBuilder.build();
-    }
+    }*/
 
-    public static EmbedObject createEmbedBuilder(List<Game> games, String title, String desc, boolean mostPlayed) {
+    /*public static EmbedObject createEmbedBuilder(List<Game> games, String title, String desc, boolean mostPlayed) {
         if (mostPlayed) {
             games.sort(Comparator.comparingInt(Game::getMinutesPlayed).reversed());
         } else {
@@ -111,10 +83,10 @@ public class BotUtils {
                         games.get(4).getGamePlayedTime(), true);
 
         return embedBuilder.build();
-    }
+    }*/
 
     // Build and display the list of commands to the user
-    public static void commandList(IChannel channel) {
+    /*public static void commandList(IChannel channel) {
         EmbedBuilder builder = new EmbedBuilder();
         builder.withColor(41, 128, 185);
         builder.appendDescription("**Important: Your Steam Privacy settings will affect the outcome, so try to make everything public.**\n\n"
@@ -139,23 +111,23 @@ public class BotUtils {
 
 
         RequestBuffer.request(() -> channel.sendMessage(builder.build()).addReaction(DELETE_EMOJI));
-    }
+    }*/
 
     /**
      * Send a message on the discord channel
      */
-    public static Future<IMessage> sendInitialMessage(IChannel channel, IUser user, String profile) {
+    /*public static Future<IMessage> sendInitialMessage(IChannel channel, IUser user, String profile) {
         return RequestBuffer.request(() ->
                 channel.sendMessage(user + " - Retrieving information for the profile " + profile + "..."));
-    }
+    }*/
 
-    public static void editMessage(IMessage message, SteamUser steamUser, String content) {
+    /*public static void editMessage(IMessage message, SteamUser steamUser, String content) {
         RequestBuffer.request(() -> {
             message.edit(steamUser.getDiscordRequester() + " - " + content).addReaction(DELETE_EMOJI);
         });
-    }
+    }*/
 
-    public static void editMessage(IMessage message, String content) {
+   /* public static void editMessage(IMessage message, String content) {
         RequestBuffer.request(() -> {
             message.edit(content).addReaction(DELETE_EMOJI);
         });
@@ -173,5 +145,5 @@ public class BotUtils {
 
     public static void deleteMessage(IMessage message) {
         RequestBuffer.request(message::delete);
-    }
+    }*/
 }

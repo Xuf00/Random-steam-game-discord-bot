@@ -1,9 +1,11 @@
 package com.discord.randsteamgamebot;
 
-import com.discord.randsteamgamebot.randomizer.GameRandomizer;
-import com.discord.randsteamgamebot.listeners.ReadyListener;
+import com.discord.randsteamgamebot.listeners.CommandHandler;
 import com.discord.randsteamgamebot.utils.BotUtils;
-import sx.blah.discord.api.IDiscordClient;
+import discord4j.core.DiscordClient;
+import discord4j.core.DiscordClientBuilder;
+import discord4j.core.object.presence.Activity;
+import discord4j.core.object.presence.Presence;
 
 /**
  *
@@ -19,8 +21,13 @@ public class BotMain {
             throw new IllegalStateException("Requires the steam.api.key property and bot.token property.");
         }
 
-        IDiscordClient discordBot = BotUtils.createClient(botToken);
-        discordBot.getDispatcher().registerListener(new ReadyListener());
-        discordBot.login();
+        DiscordClient client = new DiscordClientBuilder(botToken)
+                .setInitialPresence(Presence.idle(Activity.playing("Starting up...")))
+                .build();
+
+        CommandHandler commandHandler = new CommandHandler();
+        commandHandler.onMessageReceived(client);
+
+        client.login().block();
     }
 }

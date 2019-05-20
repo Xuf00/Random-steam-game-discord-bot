@@ -1,30 +1,13 @@
 package com.discord.randsteamgamebot.listeners;
 
-import com.discord.randsteamgamebot.utils.BotUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sx.blah.discord.api.IDiscordClient;
-import sx.blah.discord.api.events.EventSubscriber;
-import sx.blah.discord.handle.impl.events.guild.AllUsersReceivedEvent;
-import sx.blah.discord.handle.impl.events.guild.GuildCreateEvent;
-import sx.blah.discord.handle.impl.events.guild.GuildLeaveEvent;
-import sx.blah.discord.handle.impl.events.guild.GuildUnavailableEvent;
-import sx.blah.discord.handle.impl.events.guild.channel.message.reaction.ReactionEvent;
-import sx.blah.discord.handle.obj.*;
-import sx.blah.discord.util.PermissionUtils;
-import sx.blah.discord.util.RequestBuffer;
-
-import java.util.EnumSet;
-import java.util.stream.Collectors;
-
-import static com.discord.randsteamgamebot.utils.BotUtils.DELETE_EMOJI;
-import static com.discord.randsteamgamebot.utils.BotUtils.deleteMessage;
 
 public class GuildListener {
 
     private final Logger logger = LoggerFactory.getLogger(GuildListener.class);
 
-    @EventSubscriber
+    /*@EventSubscriber
     public void onEmojiReact(ReactionEvent event) {
         if (BotUtils.botLoggedInAndReady(event.getClient())) {
             try {
@@ -72,5 +55,5 @@ public class GuildListener {
     public void onGuildLeft(GuildLeaveEvent event) {
         logger.info("I disconnected from a guild. (ID: {} | Users: {} | Total Guilds: {})",
                 event.getGuild().getLongID(), event.getGuild().getUsers().size(), event.getClient().getGuilds().size());
-    }
+    }*/
 }

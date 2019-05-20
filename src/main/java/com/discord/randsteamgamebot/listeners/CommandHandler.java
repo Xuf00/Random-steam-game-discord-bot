@@ -1,25 +1,13 @@
 package com.discord.randsteamgamebot.listeners;
 
-import com.discord.randsteamgamebot.randomizer.GameRandomizer;
-import com.discord.randsteamgamebot.domain.SteamUser;
 import com.discord.randsteamgamebot.utils.BotUtils;
-import sx.blah.discord.api.events.EventSubscriber;
-import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
-
-import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
-import static com.discord.randsteamgamebot.utils.BotUtils.commandList;
-import static com.discord.randsteamgamebot.utils.BotUtils.editMessage;
-import static java.util.stream.Collectors.joining;
+import discord4j.core.DiscordClient;
+import discord4j.core.event.domain.message.MessageCreateEvent;
+import discord4j.core.object.entity.Message;
 
 public class CommandHandler {
 
-    private static Map<String, Command> commandMap = new HashMap<>();
+    /*private static Map<String, Command> commandMap = new HashMap<>();
     private ExecutorService executorService = Executors.newFixedThreadPool(20);
 
     static {
@@ -115,6 +103,15 @@ public class CommandHandler {
                 commandMap.get(commandStr).runCommand(event, message, argsList);
             });
         }
-    }
+    }*/
 
+    public void onMessageReceived(DiscordClient client) {
+        client.getEventDispatcher().on(MessageCreateEvent.class)
+                .map(MessageCreateEvent::getMessage)
+                .filter(message -> message.getAuthor().map(user -> !user.isBot()).orElse(false))
+                .filter(message -> message.getContent().orElse("").equalsIgnoreCase("!ping"))
+                .flatMap(Message::getChannel)
+                .flatMap(channel -> channel.createMessage("Pong!"))
+                .subscribe();
+    }
 }

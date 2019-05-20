@@ -6,34 +6,9 @@ package com.discord.randsteamgamebot.randomizer;
     methods to return a random game
 */
 
-import com.discord.randsteamgamebot.domain.Game;
 import com.discord.randsteamgamebot.domain.SteamUser;
-import com.discord.randsteamgamebot.utils.BotUtils;
-import com.discord.randsteamgamebot.utils.ErrorMessages;
-import com.discord.randsteamgamebot.utils.GameGenres;
-import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.JsonNode;
-import com.mashape.unirest.http.Unirest;
-import com.mashape.unirest.http.exceptions.UnirestException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sx.blah.discord.api.internal.json.objects.EmbedObject;
-import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.util.EmbedBuilder;
-import sx.blah.discord.util.RequestBuffer;
-
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.stream.Collectors;
-
-import static com.discord.randsteamgamebot.utils.BotUtils.DELETE_EMOJI;
-import static com.discord.randsteamgamebot.utils.BotUtils.editMessage;
 
 /**
  *
@@ -43,10 +18,10 @@ public class GameRandomizer {
 
     private Logger logger = LoggerFactory.getLogger(GameRandomizer.class);
 
-    private IMessage message;
+    /*private IMessage message;*/
     private SteamUser steamUser;
 
-    public GameRandomizer(Future<IMessage> message, SteamUser steamUser) {
+    /*public GameRandomizer(Future<IMessage> message, SteamUser steamUser) {
         this.steamUser = steamUser;
         try {
             this.message = message.get();
@@ -57,12 +32,12 @@ public class GameRandomizer {
             logger.info("Execution exception whilst getting initial message.");
             throw new IllegalStateException(e);
         }
-    }
+    }*/
 
     /**
      * Choose a random game for the user to play.
      */
-    public void randGame() {
+    /*public void randGame() {
         try {
             ArrayList<Game> allGames = Game.getAllGames(steamUser.getSteam64Id());
 
@@ -85,14 +60,14 @@ public class GameRandomizer {
             logger.info("Failed to retrieve a random game for the user");
             throw new IllegalStateException(ex);
         }
-    }
+    }*/
 
     /**
      * Choose and return a random game for the user that they have already played before,
      * will also display the amount of games that they have played already along with
      * the percentage of games they have played
      */
-    public void randPlayedGame() {
+    /*public void randPlayedGame() {
         try {
             ArrayList<Game> allGames = Game.getAllGames(steamUser.getSteam64Id());
 
@@ -127,16 +102,14 @@ public class GameRandomizer {
             logger.info("Failed to retrieve a random played game for the user.");
             throw new IllegalStateException(ex);
         }
-
-
-    }
+    }*/
 
     /**
      * Choose and return a random game for the user that they have not yet played,
      * will also display the amount of games that they haven't played along with
      * the percentage of games they have not yet played
      */
-    public void randUnplayedGame() {
+    /*public void randUnplayedGame() {
         try {
             ArrayList<Game> allGames = Game.getAllGames(steamUser.getSteam64Id());
 
@@ -169,13 +142,13 @@ public class GameRandomizer {
             logger.info("Failed to retrieve a random unplayed game for the user.");
             throw new IllegalStateException(ex);
         }
-    }
+    }*/
 
     /**
      * Return the users most played games on Steam,
      * nicely formatted and then output to them
      */
-    public void mostPlayedGames() {
+    /*public void mostPlayedGames() {
         try {
             ArrayList<Game> allGames = Game.getAllGames(steamUser.getSteam64Id());
 
@@ -203,13 +176,13 @@ public class GameRandomizer {
             logger.info("Failed to retrieve the users most played games.");
             throw new IllegalStateException(ex);
         }
-    }
+    }*/
 
     /**
      * Return the users 5 least played games on Steam which at least have
      * some time logged against them
      */
-    public void leastPlayedGames() {
+    /*public void leastPlayedGames() {
         try {
             ArrayList<Game> allGames = Game.getAllGames(steamUser.getSteam64Id());
 
@@ -238,13 +211,13 @@ public class GameRandomizer {
             throw new IllegalStateException(ex);
         }
 
-    }
+    }*/
 
     /**
      * Return a random game that the user owns based on genre
      * @param genre The genre to search
      */
-    public void randGameByGenre(String genre) {
+    /*public void randGameByGenre(String genre) {
         try {
             String genreVal = GameGenres.gameGenreMap.get(genre);
             if (genreVal == null) {
@@ -292,9 +265,9 @@ public class GameRandomizer {
             logger.error("Exception thrown in getting a random game by genre.");
             throw new IllegalStateException(ex);
         }
-    }
+    }*/
 
-    public void randGameByTag(String tag) {
+    /*public void randGameByTag(String tag) {
         try {
             if (tag == null || tag.equals("")) {
                 BotUtils.editMessage(message, steamUser, BotUtils.embedBuilderForTags("!rgame <steamname> tag <tagname>"));
@@ -343,5 +316,5 @@ public class GameRandomizer {
             throw new IllegalStateException(ex);
         }
 
-    }
+    }*/
 }
