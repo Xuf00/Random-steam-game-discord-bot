@@ -37,7 +37,6 @@ public class BotUtils {
                 .withRecommendedShardCount()
                 .withPingTimeout(10)
                 .setMaxReconnectAttempts(10)
-                .setMaxMessageCacheCount(100)
                 .setPresence(StatusType.IDLE)
                 .build();
     }
