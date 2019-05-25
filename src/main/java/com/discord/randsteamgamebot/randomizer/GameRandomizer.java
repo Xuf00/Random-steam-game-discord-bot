@@ -46,10 +46,10 @@ public class GameRandomizer {
     private IMessage message;
     private SteamUser steamUser;
 
-    public GameRandomizer(Future<IMessage> message, SteamUser steamUser) {
+    public GameRandomizer(SteamUser steamUser) {
         this.steamUser = steamUser;
         try {
-            this.message = message.get();
+            this.message = BotUtils.sendInitialMessage(steamUser.getUserChannel(), steamUser.getDiscordRequester()).get();
         } catch (InterruptedException e) {
             logger.info("Interrupt exception whilst getting initial message.");
             throw new IllegalStateException(e);

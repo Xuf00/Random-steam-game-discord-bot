@@ -11,6 +11,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.parser.Parser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IUser;
 
 import java.io.IOException;
@@ -26,6 +27,7 @@ public class SteamUser {
     private String profileURL;
     private int totalGames;
     private IUser discordRequester;
+    private IChannel userChannel;
 
     private SteamUser() {
 
@@ -71,6 +73,14 @@ public class SteamUser {
         this.discordRequester = discordRequester;
     }
 
+    public IChannel getUserChannel() {
+        return userChannel;
+    }
+
+    public void setUserChannel(IChannel userChannel) {
+        this.userChannel = userChannel;
+    }
+
     /**
      * Check if the users profile is private, "timecreated" only returns if it's not private
      * @return Whether or not the profile is private
@@ -96,13 +106,13 @@ public class SteamUser {
      * Get the users specific display name from Steam
      * @return The users Steam display name
      */
-    private static String retrieveUsersDisplayName(String profileURL) {
+    /*private static String retrieveUsersDisplayName(String profileURL) {
         try {
             String title = Jsoup.connect(profileURL).get().title();
 
             if (title.isEmpty()) { return null; }
 
-            String steamName = title.substring(19, title.length());
+            String steamName = title.substring(19);
             if (steamName.equalsIgnoreCase("error")) {
                 return null;
             }
@@ -110,6 +120,20 @@ public class SteamUser {
         } catch (IOException ex) {
             throw new IllegalStateException(ex);
         }
+    }*/
+
+    private String retrieveUsersDisplayName() {
+        try {
+            HttpResponse<JsonNode> jsonNodeHttpResponse = Unirest.get("http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=" + STEAM_API_KEY +
+                    "&steamids=" + steam64Id).asJson();
+
+            JSONObject response = jsonNodeHttpResponse.getBody().getObject().getJSONObject("response");
+            String steamName = response.getJSONArray("players").getJSONObject(0).get("personaname").toString();
+            return steamName;
+        } catch (UnirestException ex) {
+            logger.error(ex.getMessage());
+        }
+        return null;
     }
 
     /**
@@ -130,32 +154,25 @@ public class SteamUser {
      * Attempt to create a steam user
      * @param profileID The users steam profile ID/name
      */
-    public static SteamUser attemptToCreateSteamUser(String profileID) {
+    public static SteamUser createSteamUser(String profileID) {
         SteamUser steamUser = new SteamUser();
+        String steamProfileURL;
 
         if (profileID.matches("\\d+")) {
-            String steamProfileURL = "http://steamcommunity.com/profiles/" + profileID;
+            steamProfileURL = "http://steamcommunity.com/profiles/" + profileID;
             steamUser.setSteam64Id(profileID);
-            steamUser.setProfileURL(steamProfileURL);
-            steamUser.setDisplayName(retrieveUsersDisplayName(steamProfileURL));
-
-            if (steamUser.profileIsPrivate()) {
-                return null;
-            }
-
-            return steamUser;
-
         } else {
-            String steamProfileURL = "http://steamcommunity.com/id/" + profileID;
-
-            steamUser.setDisplayName(retrieveUsersDisplayName(steamProfileURL));
+            steamProfileURL = "http://steamcommunity.com/id/" + profileID;
             steamUser.setSteam64Id(retrieveUsersSteam64ID(steamProfileURL));
-            steamUser.setProfileURL(steamProfileURL);
-
-            if (steamUser.profileIsPrivate()) {
-                return null;
-            }
         }
+
+        steamUser.setProfileURL(steamProfileURL);
+        steamUser.setDisplayName(steamUser.retrieveUsersDisplayName());
+
+        if (steamUser.profileIsPrivate()) {
+            return null;
+        }
+
         return steamUser;
     }
 }

@@ -17,6 +17,7 @@ import sx.blah.discord.util.RequestBuffer;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
@@ -143,9 +144,9 @@ public class BotUtils {
     /**
      * Send a message on the discord channel
      */
-    public static Future<IMessage> sendInitialMessage(IChannel channel, IUser user, String profile) {
+    public static Future<IMessage> sendInitialMessage(IChannel channel, IUser user) {
         return RequestBuffer.request(() ->
-                channel.sendMessage(user + " - Retrieving information for the profile " + profile + "..."));
+                channel.sendMessage(user + " - Fetching the requested data... "));
     }
 
     public static void editMessage(IMessage message, SteamUser steamUser, String content) {
