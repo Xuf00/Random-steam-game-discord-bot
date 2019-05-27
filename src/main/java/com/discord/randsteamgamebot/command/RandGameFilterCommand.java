@@ -33,9 +33,9 @@ public class RandGameFilterCommand implements BotCommand {
         GameRandomizer crawler = new GameRandomizer(steamUser);
 
         if (args.get(2).equals("played")) {
-            crawler.mostPlayedGames();
+            crawler.randPlayedGame();
         } else {
-            crawler.leastPlayedGames();
+            crawler.randUnplayedGame();
         }
     }
 }

@@ -6,21 +6,16 @@ import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.parser.Parser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IUser;
 
-import java.io.IOException;
-
 import static com.discord.randsteamgamebot.utils.BotUtils.STEAM_API_KEY;
 
 public class SteamUser {
 
-    private Logger logger = LoggerFactory.getLogger(SteamUser.class);
+    private static Logger logger = LoggerFactory.getLogger(SteamUser.class);
 
     private String displayName;
     private String steam64Id;
@@ -102,26 +97,6 @@ public class SteamUser {
         }
     }
 
-    /**
-     * Get the users specific display name from Steam
-     * @return The users Steam display name
-     */
-    /*private static String retrieveUsersDisplayName(String profileURL) {
-        try {
-            String title = Jsoup.connect(profileURL).get().title();
-
-            if (title.isEmpty()) { return null; }
-
-            String steamName = title.substring(19);
-            if (steamName.equalsIgnoreCase("error")) {
-                return null;
-            }
-            return steamName;
-        } catch (IOException ex) {
-            throw new IllegalStateException(ex);
-        }
-    }*/
-
     private String retrieveUsersDisplayName() {
         try {
             HttpResponse<JsonNode> jsonNodeHttpResponse = Unirest.get("http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=" + STEAM_API_KEY +
@@ -136,18 +111,18 @@ public class SteamUser {
         return null;
     }
 
-    /**
-     * Get the users specific Steam 64 ID, required for the Steam Web API
-     * @param profileURL The URL of the users profile
-     * @return The users steam 64 ID
-     */
-    private static String retrieveUsersSteam64ID(String profileURL) {
+    private static String retrieveUsersSteam64ID(String name) {
+        String steamId = "";
         try {
-            Document doc = Jsoup.connect(profileURL + "/?xml=1").parser(Parser.xmlParser()).get();
-            return doc.select("steamID64").text();
-        } catch (Exception ex) {
-            throw new IllegalStateException(ex);
+            HttpResponse<JsonNode> resp = Unirest.get("http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key=" + STEAM_API_KEY +
+                    "&vanityurl=" + name).asJson();
+
+            steamId =  resp.getBody().getObject().getJSONObject("response").getString("steamid");
+
+        } catch (UnirestException e) {
+            logger.error(e.getMessage());
         }
+        return steamId;
     }
 
     /**
@@ -163,7 +138,7 @@ public class SteamUser {
             steamUser.setSteam64Id(profileID);
         } else {
             steamProfileURL = "http://steamcommunity.com/id/" + profileID;
-            steamUser.setSteam64Id(retrieveUsersSteam64ID(steamProfileURL));
+            steamUser.setSteam64Id(retrieveUsersSteam64ID(profileID));
         }
 
         steamUser.setProfileURL(steamProfileURL);

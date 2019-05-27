@@ -1,6 +1,5 @@
 package com.discord.randsteamgamebot;
 
-import com.discord.randsteamgamebot.randomizer.GameRandomizer;
 import com.discord.randsteamgamebot.listeners.ReadyListener;
 import com.discord.randsteamgamebot.utils.BotUtils;
 import sx.blah.discord.api.IDiscordClient;
