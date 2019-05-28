@@ -1,6 +1,7 @@
 package com.discord.randsteamgamebot.domain;
 
 import com.discord.randsteamgamebot.utils.BotUtils;
+import com.discord.service.GameService;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 import org.junit.Before;
@@ -15,6 +16,8 @@ import static junit.framework.Assert.assertNotNull;
 
 public class GameUnitTest {
 
+    GameService gameService = new GameService();
+
     @BeforeClass
     public static void beforeClass() {
         BotUtils.STEAM_API_KEY = System.getProperty("steam.api.key");
@@ -25,7 +28,7 @@ public class GameUnitTest {
         Runtime runtime = Runtime.getRuntime();
         long memoryUsedBefore = runtime.totalMemory() - runtime.freeMemory();
         System.out.println("Used memory before: " + memoryUsedBefore);
-        Game.getAllGames("76561198080291846");
+        gameService.getAllUsersGames("76561198080291846");
         long usedMemoryAfter = runtime.totalMemory() - runtime.freeMemory();
         System.out.println("Memory increased: " + (usedMemoryAfter-memoryUsedBefore));
     }
@@ -46,7 +49,7 @@ public class GameUnitTest {
 
     @Test
     public void getAllGames() throws Exception {
-        ArrayList<Game> allGames = Game.getAllGames("76561198080291846");
+        ArrayList<Game> allGames = gameService.getAllUsersGames("76561198080291846");
         assertNotNull(allGames);
     }
 
