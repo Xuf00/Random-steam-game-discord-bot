@@ -24,8 +24,20 @@ public class GameService {
 
     private static Logger logger = LoggerFactory.getLogger(GameService.class);
 
+    private GameService() {
+
+    }
+
+    private static class Holder {
+        private static final GameService gameService = new GameService();
+    }
+
+    public static GameService getInstance() {
+        return Holder.gameService;
+    }
+
     // Cache the users games for 10 minutes
-    private static LoadingCache<String, ArrayList<Game>> gameCache = CacheBuilder.newBuilder()
+    private LoadingCache<String, ArrayList<Game>> gameCache = CacheBuilder.newBuilder()
             .maximumSize(1000)
             .expireAfterWrite(10, TimeUnit.MINUTES)
             .build(
@@ -50,7 +62,7 @@ public class GameService {
      * @param steam64Id The Steam 64 bit ID of the user
      * @return All of the users Steam games
      */
-    private static ArrayList<Game> fetchGameData(String steam64Id) {
+    private ArrayList<Game> fetchGameData(String steam64Id) {
         ArrayList<Game> allUsersSteamGames = new ArrayList<>();
         try {
             HttpResponse<JsonNode> response = Unirest.get("http://api.steampowered.com/IPlayerService/GetOwnedGames/v1/" +
@@ -73,7 +85,7 @@ public class GameService {
      * @param response The response from the Steam API, in JSON format
      * @return The list of games
      */
-    private static ArrayList<Game> parseJSON(HttpResponse<JsonNode> response) {
+    private ArrayList<Game> parseJSON(HttpResponse<JsonNode> response) {
         JSONObject steamGameInfo = response.getBody().getObject().getJSONObject("response");
 
         if (steamGameInfo == null || steamGameInfo.length() == 0) {

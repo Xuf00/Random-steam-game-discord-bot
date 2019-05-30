@@ -44,22 +44,11 @@ public class GameRandomizer {
 
     private Logger logger = LoggerFactory.getLogger(GameRandomizer.class);
 
-    private IMessage message;
     private SteamUser steamUser;
-    private GameService gameService;
+    private GameService gameService = GameService.getInstance();
 
     public GameRandomizer(SteamUser steamUser) {
         this.steamUser = steamUser;
-        try {
-            this.message = BotUtils.sendInitialMessage(steamUser.getUserChannel(), steamUser.getDiscordRequester()).get();
-            this.gameService = new GameService();
-        } catch (InterruptedException e) {
-            logger.info("Interrupt exception whilst getting initial message.");
-            throw new IllegalStateException(e);
-        } catch (ExecutionException e) {
-            logger.info("Execution exception whilst getting initial message.");
-            throw new IllegalStateException(e);
-        }
     }
 
     /**
@@ -67,6 +56,7 @@ public class GameRandomizer {
      */
     public void randGame() {
         try {
+            IMessage message = BotUtils.sendInitialMessage(steamUser.getUserChannel(), steamUser.getDiscordRequester()).get();
             ArrayList<Game> allGames = gameService.getAllUsersGames(steamUser.getSteam64Id());
 
             if (Game.noGamesOwned(allGames)) {
@@ -78,7 +68,7 @@ public class GameRandomizer {
             Game randGame = Game.chooseRandGame(allGames);
             String storePage = "http://store.steampowered.com/app/" + randGame.getGameID();
 
-            editMessage(message, steamUser, steamUser.getDisplayName() + " owns " + allGames.size() + " games.\n"
+            BotUtils.editMessage(message, steamUser.getDisplayName() + " owns " + allGames.size() + " games.\n"
                     + "I'd recommend " + steamUser.getDisplayName() + " plays **" + randGame.getGameName() + "**.\n" +
                     "Install or play the game: " + randGame.getInstallLink() + " or go to the store page: " + storePage);
 
@@ -97,6 +87,7 @@ public class GameRandomizer {
      */
     public void randPlayedGame() {
         try {
+            IMessage message = BotUtils.sendInitialMessage(steamUser.getUserChannel(), steamUser.getDiscordRequester()).get();
             ArrayList<Game> allGames = gameService.getAllUsersGames(steamUser.getSteam64Id());
 
             if (Game.noGamesOwned(allGames)) {
@@ -141,6 +132,7 @@ public class GameRandomizer {
      */
     public void randUnplayedGame() {
         try {
+            IMessage message = BotUtils.sendInitialMessage(steamUser.getUserChannel(), steamUser.getDiscordRequester()).get();
             ArrayList<Game> allGames = gameService.getAllUsersGames(steamUser.getSteam64Id());
 
             if (Game.noGamesOwned(allGames)) {
@@ -179,28 +171,35 @@ public class GameRandomizer {
      * nicely formatted and then output to them
      */
     public void mostPlayedGames() {
-        ArrayList<Game> allGames = gameService.getAllUsersGames(steamUser.getSteam64Id());
+        try {
+            IMessage message = BotUtils.sendInitialMessage(steamUser.getUserChannel(), steamUser.getDiscordRequester()).get();
 
-        if (Game.noGamesOwned(allGames)) {
-            BotUtils.editMessage(message, steamUser, ErrorMessages.NO_GAMES_ERR);
-            return ;
+            ArrayList<Game> allGames = gameService.getAllUsersGames(steamUser.getSteam64Id());
+
+            if (Game.noGamesOwned(allGames)) {
+                BotUtils.editMessage(message, steamUser, ErrorMessages.NO_GAMES_ERR);
+                return ;
+            }
+
+            steamUser.setTotalGames(allGames.size());
+            ArrayList<Game> playedGames = Game.filterGames(allGames, true);
+
+            if (playedGames.size() < 5) {
+                BotUtils.editMessage(message, steamUser, "This user needs to have played at least five games to use this command.");
+                return ;
+            }
+
+            EmbedObject embedObject = BotUtils.createEmbedBuilder(playedGames, "Most played games for " + steamUser.getDisplayName() + "\n",
+                    "The top five most played games on Steam for this user.", true);
+
+            BotUtils.editMessage(message, steamUser, embedObject);
+
+            logger.info("Successfully returned most played games for profile: " + steamUser.getSteam64Id()
+                    + ", user owns " + steamUser.getTotalGames() + " games.");
+        } catch (Exception ex) {
+            logger.info("Failed to retrieve most played games for the user.");
+            throw new IllegalStateException(ex);
         }
-
-        steamUser.setTotalGames(allGames.size());
-        ArrayList<Game> playedGames = Game.filterGames(allGames, true);
-
-        if (playedGames.size() < 5) {
-            BotUtils.editMessage(message, steamUser, "This user needs to have played at least five games to use this command.");
-            return ;
-        }
-
-        EmbedObject embedObject = BotUtils.createEmbedBuilder(playedGames, "Most played games for " + steamUser.getDisplayName() + "\n",
-                "The top five most played games on Steam for this user.", true);
-
-        BotUtils.editMessage(message, steamUser, embedObject);
-
-        logger.info("Successfully returned most played games for profile: " + steamUser.getSteam64Id()
-                + ", user owns " + steamUser.getTotalGames() + " games.");
     }
 
     /**
@@ -208,28 +207,34 @@ public class GameRandomizer {
      * some time logged against them
      */
     public void leastPlayedGames() {
-        ArrayList<Game> allGames = gameService.getAllUsersGames(steamUser.getSteam64Id());
+        try {
+            IMessage message = BotUtils.sendInitialMessage(steamUser.getUserChannel(), steamUser.getDiscordRequester()).get();
 
-        if (Game.noGamesOwned(allGames)) {
-            BotUtils.editMessage(message, steamUser, ErrorMessages.NO_GAMES_ERR);
-            return ;
+            ArrayList<Game> allGames = gameService.getAllUsersGames(steamUser.getSteam64Id());
+
+            if (Game.noGamesOwned(allGames)) {
+                BotUtils.editMessage(message, steamUser, ErrorMessages.NO_GAMES_ERR);
+                return ;
+            }
+
+            steamUser.setTotalGames(allGames.size());
+            ArrayList<Game> playedGames = Game.filterGames(allGames, true);
+
+            if (playedGames.size() < 5) {
+                BotUtils.editMessage(message, steamUser, "This user needs to have played at least five games to use this command.");
+                return ;
+            }
+
+            EmbedObject embedObject = BotUtils.createEmbedBuilder(playedGames, "Least played games for " + steamUser.getDisplayName() + "\n",
+                    "The top five least played games on Steam for this user. (With playtime)", false);
+
+            BotUtils.editMessage(message, steamUser, embedObject);
+
+            logger.info("Successfully returned least played games for profile: " + steamUser.getSteam64Id()
+                    + ", user owns " + steamUser.getTotalGames() + " games.");
+        } catch (Exception ex) {
+            logger.info("Failed to retrieve the least played games for the user.");
         }
-
-        steamUser.setTotalGames(allGames.size());
-        ArrayList<Game> playedGames = Game.filterGames(allGames, true);
-
-        if (playedGames.size() < 5) {
-            BotUtils.editMessage(message, steamUser, "This user needs to have played at least five games to use this command.");
-            return ;
-        }
-
-        EmbedObject embedObject = BotUtils.createEmbedBuilder(playedGames, "Least played games for " + steamUser.getDisplayName() + "\n",
-                "The top five least played games on Steam for this user. (With playtime)", false);
-
-        BotUtils.editMessage(message, steamUser, embedObject);
-
-        logger.info("Successfully returned least played games for profile: " + steamUser.getSteam64Id()
-                + ", user owns " + steamUser.getTotalGames() + " games.");
     }
 
     /**
@@ -238,6 +243,8 @@ public class GameRandomizer {
      */
     public void randGameByGenre(String genre) {
         try {
+            IMessage message = BotUtils.sendInitialMessage(steamUser.getUserChannel(), steamUser.getDiscordRequester()).get();
+
             String genreVal = GameGenres.gameGenreMap.get(genre);
             if (genreVal == null) {
                 BotUtils.editMessage(message, steamUser, BotUtils.embedBuilderForGenre("!rgame <steamname> <genre>"));
@@ -288,6 +295,8 @@ public class GameRandomizer {
 
     public void randGameByTag(String tag) {
         try {
+            IMessage message = BotUtils.sendInitialMessage(steamUser.getUserChannel(), steamUser.getDiscordRequester()).get();
+
             if (tag == null || tag.equals("")) {
                 BotUtils.editMessage(message, steamUser, BotUtils.embedBuilderForTags("!rgame <steamname> tag <tagname>"));
                 return ;

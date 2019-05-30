@@ -8,11 +8,11 @@ import java.util.List;
 
 import static java.util.stream.Collectors.joining;
 
-public class RandGameTagCommand implements BotCommand {
+public class RandGameGenreCommand implements BotCommand {
 
     @Override
     public boolean matches(List<String> arguments) {
-        return arguments.size() >= 4 && arguments.get(0).equals("rgame") && arguments.get(2).equals("tag");
+        return arguments.size() == 3 && arguments.get(0).equals("rgame");
     }
 
     @Override
@@ -30,8 +30,8 @@ public class RandGameTagCommand implements BotCommand {
 
         GameRandomizer crawler = new GameRandomizer(steamUser);
 
-        String tag = args.stream().skip(3).collect(joining(" ")).toLowerCase();
+        String genre = args.stream().skip(1).collect(joining(" ")).toLowerCase();
 
-        crawler.randGameByTag(tag);
+        crawler.randGameByGenre(genre);
     }
 }

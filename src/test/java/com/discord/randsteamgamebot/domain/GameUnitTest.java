@@ -16,7 +16,7 @@ import static junit.framework.Assert.assertNotNull;
 
 public class GameUnitTest {
 
-    GameService gameService = new GameService();
+    GameService gameService = GameService.getInstance();
 
     @BeforeClass
     public static void beforeClass() {

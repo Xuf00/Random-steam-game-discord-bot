@@ -119,7 +119,7 @@ public class BotUtils {
         builder.withColor(41, 128, 185);
         builder.appendDescription("**Important: Your Steam Privacy settings will affect the outcome, so try to make everything public.**\n\n"
                                     + "Grabs all of a users games on Steam and selects a random game."
-                                    + " User can filter whether or not they want a random game they haven't played before. Can also see top played and least played games. **New feature to filter by tags.**");
+                                    + " User can filter whether or not they want a random game they haven't played before. Can also see top played and least played games. **Newest feature to filter by tags.**");
         builder.appendField("Commands   ", "!rgame <name/17 digit ID>"
                                     + "           " + "\n!rgame <name/17 digit ID> <played/unplayed>"
                                     + "           " + "\n!rgame <name/17 digit ID> <genre>"

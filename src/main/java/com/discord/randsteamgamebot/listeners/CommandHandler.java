@@ -15,9 +15,11 @@ public class CommandHandler {
 
     public CommandHandler() {
         commands.add(new MostPlayedCommand());
+        commands.add(new LeastPlayedCommand());
         commands.add(new RandGameCommand());
         commands.add(new RandGameFilterCommand());
         commands.add(new RandGameTagCommand());
+        commands.add(new RandGameGenreCommand());
         commands.add(new SbHelpCommand());
     }
 
@@ -36,15 +38,8 @@ public class CommandHandler {
             return ;
         }
 
-        String commandStr = argArray[0].substring(1);
-
         List<String> argsList = new ArrayList<>(Arrays.asList(argArray));
         argsList.set(0, argsList.get(0).substring(1));
-
-        /*if (commandStr.equals("sbhelp")) {
-            commandList(event.getChannel());
-            return ;
-        }*/
 
         for (BotCommand command : commands) {
             if (command.matches(argsList)) {

@@ -10,7 +10,7 @@ import java.util.Map;
 public final class GameGenres {
     public static final Map<String, String> gameGenreMap = new HashMap<>(
             new HashMap<String, String>() {{
-                put("early access", "Early access");
+                put("earlyaccess", "Early access");
                 put("videos", "Videos");
                 put("action", "Action");
                 put("strategy", "Strategy");
@@ -20,24 +20,25 @@ public final class GameGenres {
                 put("sport", "Sports");
                 put("sports", "Sports");
                 put("free", "Free to play");
-                put("free to play", "Free to play");
+                put("f2p", "Free to play");
+                put("freetoplay", "Free to play");
                 put("adventure", "Adventure");
                 put("simulation", "Simulation");
                 put("casual", "Casual");
                 put("multiplayer", "Massively multiplayer");
-                put("massively multiplayer", "Massively multiplayer");
+                put("massivelymultiplayer", "Massively multiplayer");
                 put("education", "Education");
 
                 // These can also be used but they're not games so they're not listed on the helper message...
-                put("video production", "Video production");
-                put("software training", "Software training");
-                put("animation & modeling", "Animation & modeling");
-                put("audio production", "Audio production");
+                put("videoproduction", "Video production");
+                put("softwaretraining", "Software training");
+                put("animation&modeling", "Animation & modeling");
+                put("audioproduction", "Audio production");
                 put("accounting", "Accounting");
-                put("web publishing", "Web publishing");
+                put("webpublishing", "Web publishing");
                 put("utilities", "Utilities");
-                put("design & illustration", "Design & illustration");
-                put("photo editing", "Photo editing");
+                put("design&illustration", "Design & illustration");
+                put("photoediting", "Photo editing");
             }}
     );
 
