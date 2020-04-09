@@ -13,9 +13,9 @@ import sx.blah.discord.handle.obj.IUser;
 
 import static com.discord.randsteamgamebot.utils.BotUtils.STEAM_API_KEY;
 
-public class SteamUser {
+public class BotUser {
 
-    private static Logger logger = LoggerFactory.getLogger(SteamUser.class);
+    private static Logger logger = LoggerFactory.getLogger(BotUser.class);
 
     private String displayName;
     private String steam64Id;
@@ -24,7 +24,7 @@ public class SteamUser {
     private IUser discordRequester;
     private IChannel userChannel;
 
-    private SteamUser() {
+    private BotUser() {
 
     }
 
@@ -88,10 +88,7 @@ public class SteamUser {
             JSONObject userInfo = response.getBody().getObject().getJSONObject("response");
             JSONArray jsonResponse = userInfo.getJSONArray("players");
 
-            if (jsonResponse.toString().contains("timecreated")) {
-                return false;
-            }
-            return true;
+            return !jsonResponse.toString().contains("timecreated");
         } catch (UnirestException ex) {
             throw new IllegalStateException(ex);
         }
@@ -129,25 +126,25 @@ public class SteamUser {
      * Attempt to create a steam user
      * @param profileID The users steam profile ID/name
      */
-    public static SteamUser createSteamUser(String profileID) {
-        SteamUser steamUser = new SteamUser();
+    public static BotUser createSteamUser(String profileID) {
+        BotUser botUser = new BotUser();
         String steamProfileURL;
 
         if (profileID.matches("\\d+")) {
             steamProfileURL = "http://steamcommunity.com/profiles/" + profileID;
-            steamUser.setSteam64Id(profileID);
+            botUser.setSteam64Id(profileID);
         } else {
             steamProfileURL = "http://steamcommunity.com/id/" + profileID;
-            steamUser.setSteam64Id(retrieveUsersSteam64ID(profileID));
+            botUser.setSteam64Id(retrieveUsersSteam64ID(profileID));
         }
 
-        steamUser.setProfileURL(steamProfileURL);
-        steamUser.setDisplayName(steamUser.retrieveUsersDisplayName());
+        botUser.setProfileURL(steamProfileURL);
+        botUser.setDisplayName(botUser.retrieveUsersDisplayName());
 
-        if (steamUser.profileIsPrivate()) {
+        if (botUser.profileIsPrivate()) {
             return null;
         }
 
-        return steamUser;
+        return botUser;
     }
 }

@@ -1,7 +1,7 @@
 package com.discord.randsteamgamebot.utils;
 
 import com.discord.randsteamgamebot.domain.Game;
-import com.discord.randsteamgamebot.domain.SteamUser;
+import com.discord.randsteamgamebot.domain.BotUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sx.blah.discord.api.ClientBuilder;
@@ -17,9 +17,7 @@ import sx.blah.discord.util.RequestBuffer;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.stream.Collectors;
 
 public class BotUtils {
 
@@ -149,9 +147,9 @@ public class BotUtils {
                 channel.sendMessage(user + " - Fetching the requested data... "));
     }
 
-    public static void editMessage(IMessage message, SteamUser steamUser, String content) {
+    public static void editMessage(IMessage message, BotUser botUser, String content) {
         RequestBuffer.request(() -> {
-            message.edit(steamUser.getDiscordRequester() + " - " + content).addReaction(DELETE_EMOJI);
+            message.edit(botUser.getDiscordRequester() + " - " + content).addReaction(DELETE_EMOJI);
         });
     }
 
@@ -161,9 +159,9 @@ public class BotUtils {
         });
     }
 
-    public static void editMessage(IMessage message, SteamUser steamUser, EmbedObject content) {
+    public static void editMessage(IMessage message, BotUser botUser, EmbedObject content) {
         RequestBuffer.request(() -> {
-            message.edit(steamUser.getDiscordRequester() + "", content).addReaction(DELETE_EMOJI);
+            message.edit(botUser.getDiscordRequester() + "", content).addReaction(DELETE_EMOJI);
         });
     }
 

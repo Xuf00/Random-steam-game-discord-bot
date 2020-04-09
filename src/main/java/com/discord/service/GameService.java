@@ -1,7 +1,6 @@
 package com.discord.service;
 
 import com.discord.randsteamgamebot.domain.Game;
-import com.discord.randsteamgamebot.domain.SteamUser;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;

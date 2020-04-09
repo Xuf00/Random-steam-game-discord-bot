@@ -9,13 +9,13 @@ import junit.framework.Assert;
 import org.json.JSONObject;
 import org.junit.Test;
 
-public class SteamUserTest {
+public class BotUserTest {
 
     @Test
     public void createSteamUser() throws Exception {
         BotUtils.STEAM_API_KEY = System.getProperty("steam.api.key");
-        SteamUser steamUser = SteamUser.createSteamUser("76561197984432884");
-        Assert.assertNotNull(steamUser);
+        BotUser botUser = BotUser.createSteamUser("76561197984432884");
+        Assert.assertNotNull(botUser);
     }
 
     @Test

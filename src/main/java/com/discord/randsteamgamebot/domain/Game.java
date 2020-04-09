@@ -134,10 +134,7 @@ public class Game {
      * @return Whether or not at least one game exists
      */
     public static boolean noGamesOwned(List<Game> games) {
-        if (games == null || games.isEmpty()) {
-            return true;
-        }
-        return false;
+        return games == null || games.isEmpty();
     }
 
     @Override
