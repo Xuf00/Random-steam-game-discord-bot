@@ -48,7 +48,7 @@
     <repositories>
         <repository> <!-- This repo fixes issues with transitive dependencies -->
             <id>jcenter</id>
-            <url>http://jcenter.bintray.com</url>
+            <url>https://jcenter.bintray.com</url>
         </repository>
         <repository>
             <id>jitpack.io</id>
