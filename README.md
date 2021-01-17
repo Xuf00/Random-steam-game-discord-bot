@@ -18,14 +18,7 @@ Few additions I would like to make in due time -
 
 ## Hosting ##
 
-The bot is now being hosted and can be invited to discord servers.
-
-[Invite the bot directly](https://discordapp.com/oauth2/authorize?client_id=348109452043485185&permissions=67324928&scope=bot
-)
-
-[Find it on bots.discord.pw](https://bots.discord.pw/bots/348109452043485185)
-
-[Find it on discordbots](https://discordbots.org/bot/348109452043485185)
+The bot is no longer being hosted or maintained.
 
 ## Want to host it yourself for your own server(s)? ##
 
